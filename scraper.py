@@ -16,28 +16,32 @@ def fetch_poll_data():
     
     # Tabelle mit Umfragedaten finden
     table = soup.find("table", {"class": "wilko"})
-
-    # Zeile mit den Veröffentlichungsdaten (`id="datum"`)
+    rows = table.find_all("tr")
+    
+    # Header extrahieren (inkl. aller Spalten)
     release_row = table.find("tr", {"id": "datum"})
-    release_dates = [span.text.strip() for span in release_row.find_all("span", {"class": "li"}) if span.text.strip()]
+    release_dates = [
+        span.text.strip()
+        for span in release_row.find_all("span", {"class": "li"})
+        if span.text.strip()
+    ]
     
     # Daten für jede Partei extrahieren
     parties = ["CDU/CSU", "SPD", "GRÜNE", "FDP", "DIE LINKE", "AfD", "BSW"]
     data = []
-    for party_id in ["cdu", "spd", "gru", "fdp", "lin", "afd", "bsw"]:
-        row = table.find("tr", {"id": party_id})
+    for row_id in ["cdu", "spd", "gru", "fdp", "lin", "afd", "bsw"]:
+        row = table.find("tr", {"id": row_id})
         cells = row.find_all("td")
-        # Parteiname (als erstes Element) ignorieren, sodass nur die Zahlen extrahiert werden
-        values = [cell.text.strip().replace("%", "") for cell in cells[1:]]  # Skip the first column (party name)
+        values = [cell.text.strip().replace("%", "") for cell in cells]
         data.append(values)
     
     # DataFrame erstellen
-    df = pd.DataFrame(data, index=parties, columns=release_dates).T  # Transponieren der Daten
-
-    # Spalte mit Veröffentlichungsdatum hinzufügen
+    df = pd.DataFrame(data, index=parties, columns=release_dates).T
+    
+    # Veröffentlichungsdatum konvertieren
     df["Zeitraum"] = pd.to_datetime(df.index, format="%d.%m.%Y", errors="coerce")
     
-    # Filter auf die letzten 14 Tage
+    # Filter auf letzte 14 Tage
     two_weeks_ago = datetime.now() - timedelta(days=14)
     df_filtered = df[df["Zeitraum"] >= two_weeks_ago]
     
