@@ -122,7 +122,7 @@ def format_for_lametric(coalitions):
     frames = []
     
     # Waage-Icon-ID (Beispiel)
-    icon_id = "87"  # Beispiel-ID für eine Waage
+    icon_id = "661"  # Beispiel-ID für eine Waage
     
     for key, coalition_list in coalitions.items():
         for coalition in coalition_list:
@@ -134,7 +134,7 @@ def format_for_lametric(coalitions):
     
     return {"frames": frames}
 
-def save_to_json(data, filename="data.json"):
+def save_to_json(data, filename="lametric.json"):
     """
     Speichert das Ergebnis (Koalitionen) oder LaMetric-Daten in einer JSON-Datei.
     """
@@ -171,7 +171,7 @@ if __name__ == "__main__":
         
         lametric_data = format_for_lametric(coalitions)
         
-        save_to_json(lametric_data, filename="lametric.json")
+        save_to_json(lametric_data)
         
         logging.info("Prozess erfolgreich abgeschlossen!")
     
