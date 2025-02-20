@@ -2,12 +2,13 @@ name: Update Coalition Data
 
 on:
   schedule:
-    - cron: "0 5 * * 1"  # Montags um 6:00 MEZ
+    - cron: "0 5 * * 1"  # Montags um 6 Uhr MEZ (5 Uhr UTC)
   workflow_dispatch:
 
 jobs:
   update:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -22,16 +23,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Scraper with Output Logging
-        run: |
-          python scraper.py | tee scraper_output.txt
-          # Fallback, wenn data.json nicht existiert
-          if [ ! -f "data.json" ]; then
-            echo '{"error": "Daten nicht verfügbar"}' > data.json
-          fi
-
-      - name: Show Scraper Output
-        run: cat scraper_output.txt
+      - name: Run Scraper
+        run: python scraper.py
 
       - name: Commit Changes
         run: |
