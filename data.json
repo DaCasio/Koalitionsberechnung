@@ -1,5 +1,1 @@
-- name: Handle Empty Data
-  run: |
-    if [ ! -f "data.json" ]; then
-      echo "{}" > data.json
-    fi
+{"error": "\"Die Spalte 'Zeitraum' oder 'Datum' wurde nicht gefunden!\""}
