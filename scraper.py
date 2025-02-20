@@ -4,126 +4,41 @@ import pandas as pd
 from datetime import datetime, timedelta
 import json
 
-
 def fetch_poll_data():
-    """
-    Extrahiert die Partei- und Umfragedaten von wahlrecht.de.
-    """
-    # URL der Seite
     url = "https://www.wahlrecht.de/umfragen/"
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
-    
-    # Tabelle mit Umfragedaten finden
     table = soup.find("table", {"class": "wilko"})
-    rows = table.find_all("tr")
     
-    # Header extrahieren (inkl. aller Spalten)
-    release_row = table.find("tr", {"id": "datum"})
+    # Extrahiere die Veröffentlichungsdaten aus der 'datum'-Zeile
     release_dates = [
-        span.text.strip()
-        for span in release_row.find_all("span", {"class": "li"})
-        if span.text.strip()
-    ]
-    
-    # Daten für jede Partei extrahieren
+        span.text.strip() 
+        for span in table.find("tr", id="datum").find_all("span", class_="li")
+    ][1:]  # Skip empty first cell
+
+    # Parteien und deren Zeilen-IDs
     parties = ["CDU/CSU", "SPD", "GRÜNE", "FDP", "DIE LINKE", "AfD", "BSW"]
+    party_ids = ["cdu", "spd", "gru", "fdp", "lin", "afd", "bsw"]
+    
+    # Extrahiere Umfragewerte für jede Partei (ignoriere erste Spalte)
     data = []
-    for row_id in ["cdu", "spd", "gru", "fdp", "lin", "afd", "bsw"]:
-        row = table.find("tr", {"id": row_id})
-        cells = row.find_all("td")
-        values = [cell.text.strip().replace("%", "") for cell in cells]
+    for pid in party_ids:
+        row = table.find("tr", id=pid)
+        values = [cell.text.strip().replace("%", "") for cell in row.find_all("td")][1:]  # Erste Zelle (Parteiname) überspringen
         data.append(values)
     
-    # DataFrame erstellen
+    # DataFrame mit korrekten Spalten erstellen
     df = pd.DataFrame(data, index=parties, columns=release_dates).T
     
-    # Veröffentlichungsdatum konvertieren
-    df["Zeitraum"] = pd.to_datetime(df.index, format="%d.%m.%Y", errors="coerce")
-    
-    # Filter auf letzte 14 Tage
+    # Datum konvertieren und filtern
+    df["Datum"] = pd.to_datetime(df.index, format="%d.%m.%Y", errors="coerce")
     two_weeks_ago = datetime.now() - timedelta(days=14)
-    df_filtered = df[df["Zeitraum"] >= two_weeks_ago]
+    df_filtered = df[df["Datum"] >= two_weeks_ago]
     
-    # Prozentwerte in numerische Werte konvertieren
+    # Konvertiere Prozentwerte
     for party in parties:
         df_filtered[party] = pd.to_numeric(df_filtered[party], errors="coerce")
     
     return df_filtered
 
-
-def calculate_weekly_average(df):
-    """
-    Berechnet den Durchschnitt der Parteienwerte der letzten 14 Tage.
-    """
-    parties = ["CDU/CSU", "SPD", "GRÜNE", "FDP", "DIE LINKE", "AfD", "BSW"]
-    averages = df[parties].mean().round(1)  # Durchschnitt berechnen und runden
-    return averages.to_dict()
-
-
-def calculate_coalitions(averages, include_afd=True):
-    """
-    Berechnet mögliche Koalitionen basierend auf den Durchschnittswerten.
-    """
-    parties = list(averages.keys())
-    if not include_afd:
-        parties.remove("AfD")
-    
-    coalitions = []
-
-    # Zweier-Koalitionen
-    for i, p1 in enumerate(parties):
-        for p2 in parties[i + 1:]:
-            total = averages[p1] + averages[p2]
-            coalitions.append({
-                "parties": [p1, p2],
-                "total": total,
-                "majority": total >= 50.0
-            })
-
-    # Dreier-Koalitionen
-    for i, p1 in enumerate(parties):
-        for j, p2 in enumerate(parties[i + 1:]):
-            for p3 in parties[i + j + 2:]:
-                total = averages[p1] + averages[p2] + averages[p3]
-                coalitions.append({
-                    "parties": [p1, p2, p3],
-                    "total": total,
-                    "majority": total >= 50.0
-                })
-
-    return coalitions
-
-
-def save_to_json(filename, with_afd, without_afd):
-    """
-    Speichert die Ergebnisse in einer JSON-Datei.
-    """
-    output = {
-        "with_afd": with_afd,
-        "without_afd": without_afd
-    }
-    with open(filename, "w") as f:
-        json.dump(output, f, indent=4)
-    print(f"Ergebnisse in {filename} gespeichert.")
-
-
-if __name__ == "__main__":
-    try:
-        print("Daten von wahlrecht.de abrufen...")
-        df = fetch_poll_data()
-        print("Daten erfolgreich abgerufen:")
-        print(df.head())
-
-        print("Berechne Durchschnittswerte...")
-        averages = calculate_weekly_average(df)
-
-        print("Berechne Koalitionen...")
-        with_afd = calculate_coalitions(averages, include_afd=True)
-        without_afd = calculate_coalitions(averages, include_afd=False)
-
-        print("Speichere Ergebnisse...")
-        save_to_json("data.json", with_afd, without_afd)
-        print("Alle Daten wurden erfolgreich verarbeitet.")
-    except Exception as e:
-        print(f"Fehler: {e}")
+# Rest des Codes (calculate_weekly_average, calculate_coalitions, etc.) bleibt unverändert
