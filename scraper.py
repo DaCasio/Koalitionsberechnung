@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # scraper.py
-# Dieses Skript ruft Umfragedaten von wahlrecht.de ab, berechnet den Durchschnittswert für alle verfügbaren Daten und ermittelt mögliche Regierungskoalitionen mit maximal 3 Partnern.
+# Dieses Skript ruft Umfragedaten von wahlrecht.de ab, berechnet den Durchschnittswert für alle verfügbaren Daten und ermittelt mögliche Regierungskoalitionen.
 
 import logging
 import requests
@@ -77,14 +77,18 @@ def fetch_poll_data():
 def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
     """
     Berechnet mögliche Koalitionen basierend auf Parteien mit mindestens 5% Stimmenanteil.
-    Begrenzung auf maximal 3 Koalitionspartner.
+    Berücksichtigt:
+      - Nur Koalitionen mit mindestens 50 % (true).
+      - SPD, Grüne und Linke koalieren nicht mit der AfD.
+      - Minderheitsregierung mit AfD als starker Opposition.
+      - Begrenzung auf maximal 3 Partner.
     """
     eligible_parties = {k: v for k, v in poll_data.items() if v >= threshold}
     
     if not eligible_parties:
         logging.warning("Keine Parteien über der 5%-Hürde gefunden!")
     
-    coalitions = {"with_afd": [], "without_afd": []}
+    coalitions = {"with_afd": [], "without_afd": [], "minority_with_afd": []}
     
     # Generiere Kombinationen von maximal 3 Parteien und prüfe, ob CDU/CSU enthalten ist.
     for r in range(2, 4):  # Nur Kombinationen mit 2 oder 3 Parteien
@@ -95,14 +99,22 @@ def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
             total = sum(eligible_parties[p] for p in combo)
             afd_included = "AfD" in combo
             
+            # Filtere Koalitionen mit AfD und SPD/Grüne/Linke aus
+            if afd_included and any(party in combo for party in ["SPD", "GRÜNE", "DIE LINKE"]):
+                continue
+            
             coalition = {
                 "parties": list(combo),
                 "total": round(total, 1),
                 "possible": total >= majority,
             }
             
-            key = "with_afd" if afd_included else "without_afd"
-            coalitions[key].append(coalition)
+            if total >= majority:
+                key = "with_afd" if afd_included else "without_afd"
+                coalitions[key].append(coalition)
+            elif afd_included and total < majority:
+                # Minderheitsregierung mit AfD als starker Opposition
+                coalitions["minority_with_afd"].append(coalition)
 
     logging.info(f"Koalitionen mit AfD: {coalitions['with_afd']}")
     logging.info(f"Koalitionen ohne AfD: {coalitions['without_afd']}")
