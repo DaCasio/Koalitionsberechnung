@@ -1,4 +1,5 @@
 # scraper.py
+import logging  # Import für Logging hinzugefügt
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -11,6 +12,10 @@ def fetch_poll_data():
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
     table = soup.find("table", {"class": "wilko"})
+
+    if not table:
+        logging.error("Umfragetabelle nicht gefunden - HTML-Struktur möglicherweise geändert")
+        raise ValueError("Umfragetabelle nicht gefunden")
 
     # Extrahiere Institute und Datumsangaben
     header_row = table.find("tr", {"id": "datum"})
@@ -27,9 +32,9 @@ def fetch_poll_data():
         ("FDP", "fdp"),
         ("DIE LINKE", "lin"),
         ("AfD", "afd"),
-        ("FREIE WÄHLER", "frw"),
+        ("FREIE WÄHLER", "frw"),  # Hinzugefügt
         ("BSW", "bsw"),
-        ("Sonstige", "son")
+        ("Sonstige", "son")  # Hinzugefügt
     ]
 
     # Extrahiere Umfragewerte
@@ -37,18 +42,18 @@ def fetch_poll_data():
     for party_name, party_id in parties_config:
         row = table.find("tr", {"id": party_id})
         if not row:
-            print(f"Warnung: Zeile für {party_name} nicht gefunden")
+            logging.warning(f"Zeile für {party_name} nicht gefunden")
             continue
             
         cells = row.find_all("td")[1:]
         values = []
         for cell in cells:
             text = cell.text.strip()
-            # Säubern der Daten
             text = text.replace('%', '').replace(',', '.').replace('–', '0')
             try:
                 values.append(float(text))
             except ValueError:
+                logging.warning(f"Ungültiger Wert für {party_name}: '{text}'")
                 values.append(0.0)  # Setze 0 bei fehlenden Werten
                 
         poll_data[party_name] = values
@@ -73,50 +78,70 @@ def fetch_poll_data():
     # Durchschnittsberechnung mit Rundung
     avg_values = df_filtered.mean().round(1).to_dict()
     
-    print("Aktuelle Durchschnittswerte:")
+    logging.info("Aktuelle Durchschnittswerte:")
     for party, value in avg_values.items():
-        print(f"{party}: {value}%")
+        logging.info(f"{party}: {value}%")
     
     return avg_values
 
+def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
+    eligible_parties = {k: v for k, v in poll_data.items() if v >= threshold}
+    logging.info(f"Berücksichtigte Parteien: {eligible_parties}")
+
+    coalitions = {"with_afd": [], "without_afd": []}
+    
+    for r in range(1, len(eligible_parties)+1):
+        for combo in combinations(eligible_parties.keys(), r):
+            if "CDU/CSU" not in combo:
+                continue
+                
+            total = sum(eligible_parties[p] for p in combo)
+            afd_included = "AfD" in combo
+            bsw_included = "BSW" in combo
+            
+            coalition = {
+                "parties": list(combo),
+                "total": round(total, 1),
+                "possible": total >= majority,
+                "bsw": bsw_included
+            }
+            
+            key = "with_afd" if afd_included else "without_afd"
+            coalitions[key].append(coalition)
+    
+    for key in coalitions:
+        coalitions[key].sort(
+            key=lambda x: (-x["total"], len(x["parties"])),
+            reverse=False
+        )
+    
+    return coalitions
+
 def save_to_json(data):
-    # Prüfung auf gültige Daten
-    if not data.get("without_afd") and not data.get("with_afd"):
-        raise ValueError("Keine Koalitionen gefunden - Daten möglicherweise korrupt")
-    
-    # Backup alter Daten
-    if os.path.exists("data.json"):
-        shutil.copy("data.json", "data_backup.json")
-    
     with open("data.json", "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-    
-    print("Erfolgreich gespeichert in data.json")
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.FileHandler("scraper.log"),
-            logging.StreamHandler()
-        ]
-    )
-    
     try:
-        logger.info("Starte Datenerfassung...")
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.FileHandler("scraper.log"),
+                logging.StreamHandler()
+            ]
+        )
+        
+        logging.info("Starte Datenerfassung...")
         poll_data = fetch_poll_data()
         
-        logger.info("Berechne Koalitionen...")
+        logging.info("Berechne mögliche Koalitionen...")
         coalitions = calculate_coalitions(poll_data)
         
-        logger.info("Validiere Ergebnisse...")
-        if not coalitions["with_afd"] and not coalitions["without_afd"]:
-            raise ValueError("Keine möglichen Koalitionen gefunden")
-            
+        logging.info("Speichere Ergebnisse...")
         save_to_json(coalitions)
-        logger.info("Prozess erfolgreich abgeschlossen")
+        
+        logging.info("Prozess erfolgreich abgeschlossen!")
         
     except Exception as e:
-        logger.error(f"Kritischer Fehler: {str(e)}", exc_info=True)
-        sys.exit(1)
+        logging.error(f"Kritischer Fehler: {str(e)}", exc_info=True)
