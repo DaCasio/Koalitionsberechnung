@@ -57,7 +57,25 @@ def fetch_poll_data():
 if __name__ == "__main__":
     try:
         data = fetch_poll_data()
-        print("Erfolgreich Daten geladen:")
-        print(data.head())
-    except KeyError as e:
-        print(f"Fehler: {e}")
+        print("Erfolgreich Daten von Wahlrecht.de geladen. Übersicht der Daten:")
+        print(data.head())  # Erste 5 Zeilen zeigen
+        
+        if data.empty:
+            print("Warnung: Keine Daten in den letzten 14 Tagen gefunden!")
+            with open("data.json", "w") as f:
+                json.dump({"error": "Keine Daten verfügbar"}, f)
+        else:
+            print("Berechne Koalitionen...")
+            averages = calculate_weekly_average(data)
+            
+            coalitions_with_afd = calculate_coalitions(averages, include_afd=True)
+            coalitions_without_afd = calculate_coalitions(averages, include_afd=False)
+            
+            print("Speichere Ergebnisse...")
+            save_to_json("data.json", coalitions_with_afd, coalitions_without_afd)
+            print("Daten erfolgreich gespeichert.")
+            
+    except Exception as e:
+        print(f"Kritischer Fehler: {str(e)}")
+        with open("data.json", "w") as f:
+            json.dump({"error": str(e)}, f)
