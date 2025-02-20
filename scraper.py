@@ -16,8 +16,7 @@ def fetch_poll_data():
     
     # Tabelle mit Umfragedaten finden
     table = soup.find("table", {"class": "wilko"})
-    rows = table.find_all("tr")
-    
+
     # Zeile mit den Veröffentlichungsdaten (`id="datum"`)
     release_row = table.find("tr", {"id": "datum"})
     release_dates = [span.text.strip() for span in release_row.find_all("span", {"class": "li"}) if span.text.strip()]
@@ -27,12 +26,14 @@ def fetch_poll_data():
     data = []
     for party_id in ["cdu", "spd", "gru", "fdp", "lin", "afd", "bsw"]:
         row = table.find("tr", {"id": party_id})
-        values = [cell.text.strip().replace("%", "") for cell in row.find_all("td") if cell.text.strip()]
+        cells = row.find_all("td")
+        # Parteiname (als erstes Element) ignorieren, sodass nur die Zahlen extrahiert werden
+        values = [cell.text.strip().replace("%", "") for cell in cells[1:]]  # Skip the first column (party name)
         data.append(values)
     
     # DataFrame erstellen
-    df = pd.DataFrame(data, index=parties, columns=release_dates).T  # Transponieren der Daten für besseres Mapping
-    
+    df = pd.DataFrame(data, index=parties, columns=release_dates).T  # Transponieren der Daten
+
     # Spalte mit Veröffentlichungsdatum hinzufügen
     df["Zeitraum"] = pd.to_datetime(df.index, format="%d.%m.%Y", errors="coerce")
     
@@ -41,7 +42,8 @@ def fetch_poll_data():
     df_filtered = df[df["Zeitraum"] >= two_weeks_ago]
     
     # Prozentwerte in numerische Werte konvertieren
-    df_filtered[parties] = df_filtered[parties].apply(pd.to_numeric, errors="coerce")
+    for party in parties:
+        df_filtered[party] = pd.to_numeric(df_filtered[party], errors="coerce")
     
     return df_filtered
 
