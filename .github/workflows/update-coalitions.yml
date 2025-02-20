@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Clear Python Cache
+        run: |
+          python -m pip cache purge
+    
       - name: Checkout Repository
         uses: actions/checkout@v3
       
