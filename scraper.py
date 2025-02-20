@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # scraper.py
-# Dieses Skript ruft Umfragedaten von wahlrecht.de ab, berechnet den Durchschnittswert für alle verfügbaren Daten und ermittelt mögliche Regierungskoalitionen.
+# Dieses Skript ruft Umfragedaten von wahlrecht.de ab, berechnet Koalitionen und erstellt ein LaMetric-kompatibles JSON-Format.
 
 import logging
 import requests
@@ -80,7 +80,6 @@ def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
     Berücksichtigt:
       - Nur Koalitionen mit mindestens 50 % (true).
       - SPD, Grüne und Linke koalieren nicht mit der AfD.
-      - Minderheitsregierung mit AfD als starker Opposition.
       - Begrenzung auf maximal 3 Partner.
     """
     eligible_parties = {k: v for k, v in poll_data.items() if v >= threshold}
@@ -88,9 +87,8 @@ def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
     if not eligible_parties:
         logging.warning("Keine Parteien über der 5%-Hürde gefunden!")
     
-    coalitions = {"with_afd": [], "without_afd": [], "minority_with_afd": []}
+    coalitions = {"with_afd": [], "without_afd": []}
     
-    # Generiere Kombinationen von maximal 3 Parteien und prüfe, ob CDU/CSU enthalten ist.
     for r in range(2, 4):  # Nur Kombinationen mit 2 oder 3 Parteien
         for combo in combinations(eligible_parties.keys(), r):
             if "CDU/CSU" not in combo:
@@ -109,23 +107,38 @@ def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
                 "possible": total >= majority,
             }
             
-            if total >= majority:
-                key = "with_afd" if afd_included else "without_afd"
-                coalitions[key].append(coalition)
-            elif afd_included and total < majority:
-                # Minderheitsregierung mit AfD als starker Opposition
-                coalitions["minority_with_afd"].append(coalition)
+            key = "with_afd" if afd_included else "without_afd"
+            coalitions[key].append(coalition)
 
     logging.info(f"Koalitionen mit AfD: {coalitions['with_afd']}")
     logging.info(f"Koalitionen ohne AfD: {coalitions['without_afd']}")
     
     return coalitions
 
-def save_to_json(data):
+def format_for_lametric(coalitions):
     """
-    Speichert das Ergebnis (Koalitionen) in der Datei data.json.
+    Formatiert die Koalitionsdaten im LaMetric-kompatiblen JSON-Format.
     """
-    with open("data.json", "w", encoding="utf-8") as f:
+    frames = []
+    
+    # Waage-Icon-ID (Beispiel)
+    icon_id = "661"  # Beispiel-ID für eine Waage
+    
+    for key, coalition_list in coalitions.items():
+        for coalition in coalition_list:
+            if coalition["possible"]:  # Nur Koalitionen mit mindestens 50%
+                frames.append({
+                    "text": f"{', '.join(coalition['parties'])}: {coalition['total']}%",
+                    "icon": icon_id
+                })
+    
+    return {"frames": frames}
+
+def save_to_json(data, filename="data.json"):
+    """
+    Speichert das Ergebnis (Koalitionen) oder LaMetric-Daten in einer JSON-Datei.
+    """
+    with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
@@ -154,7 +167,11 @@ if __name__ == "__main__":
         if not coalitions["with_afd"] and not coalitions["without_afd"]:
             logging.warning("Keine möglichen Koalitionen gefunden!")
         
-        save_to_json(coalitions)
+        logging.info("Formatiere Daten für LaMetric...")
+        
+        lametric_data = format_for_lametric(coalitions)
+        
+        save_to_json(lametric_data, filename="lametric.json")
         
         logging.info("Prozess erfolgreich abgeschlossen!")
     
