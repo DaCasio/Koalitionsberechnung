@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-# scraper.py
-# Dieses Skript ruft Umfragedaten von wahlrecht.de ab, berechnet den Durchschnittswert pro Partei
-# und ermittelt mögliche Regierungskoalitionen basierend auf den aktuellen Umfragewerten.
+"""
+Dieses Skript ruft Umfragedaten von wahlrecht.de ab, berechnet den Durchschnittswert pro Partei
+und ermittelt mögliche Regierungskoalitionen basierend auf den aktuellen Umfragewerten.
+Die Ergebnisse werden in data.json gespeichert.
+"""
 
 import logging
 import requests
@@ -38,9 +40,9 @@ def fetch_poll_data():
         ("FDP", "fdp"),
         ("DIE LINKE", "lin"),
         ("AfD", "afd"),
-        ("FREIE WÄHLER", "frw"),  # Hinzugefügt
+        ("FREIE WÄHLER", "frw"),
         ("BSW", "bsw"),
-        ("Sonstige", "son")       # Hinzugefügt
+        ("Sonstige", "son")
     ]
     
     poll_data = {}
@@ -82,7 +84,7 @@ def fetch_poll_data():
     # Bereinige den DataFrame: Ersetze 0.0 durch NA und entferne komplett leere Zeilen
     df_cleaned = df.replace(0.0, pd.NA).dropna(how="all")
     
-    # Berechne den Durchschnittswert je Partei und runde diese auf eine Nachkommastelle
+    # Berechne den Durchschnittswert je Partei und runde auf eine Nachkommastelle
     avg_values = df_cleaned.mean().round(1).to_dict()
     logging.info("Durchschnittswerte:")
     logging.info(avg_values)
@@ -93,68 +95,28 @@ def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
     """
     Berechnet mögliche Koalitionen, die mindestens 50% erreichen, basierend auf Parteien,
     die über der 5%-Hürde liegen. Die CDU/CSU muss in jeder Koalition enthalten sein.
+    
+    Spezielle Regeln:
+    - Koalitionen mit AfD: Es wird nur die minimale Kombination (CDU/CSU + AfD) berücksichtigt.
+    - Koalitionen ohne AfD: Es muss immer auch die SPD enthalten sein.
     """
-    # Auswahl der Parteien oberhalb der Hürde
+    # Filtere Parteien, die über der Hürde liegen
     eligible_parties = {k: v for k, v in poll_data.items() if v >= threshold}
     logging.info(f"Berücksichtigte Parteien: {eligible_parties}")
 
     coalitions = {"with_afd": [], "without_afd": []}
-    
-    # Generiere Kombinationen (mindestens 2 Parteien) und prüfe, ob CDU/CSU enthalten ist
-    for r in range(2, len(eligible_parties) + 1):
-        for combo in combinations(eligible_parties.keys(), r):
-            if "CDU/CSU" not in combo:
-                continue  # CDU/CSU muss Bestandteil jeder möglichen Koalition sein
-            total = sum(eligible_parties[p] for p in combo)
-            afd_included = "AfD" in combo
-            coalition = {
-                "parties": list(combo),
-                "total": round(total, 1),
-                "possible": total >= majority,
-            }
-            key = "with_afd" if afd_included else "without_afd"
-            coalitions[key].append(coalition)
-    
-    logging.info("Ermittelte Koalitionen mit AfD:")
-    logging.info(coalitions["with_afd"])
-    logging.info("Ermittelte Koalitionen ohne AfD:")
-    logging.info(coalitions["without_afd"])
-    
-    return coalitions
 
-def save_to_json(data):
-    """
-    Speichert das Ergebnis (Koalitionen) in der data.json.
-    """
-    with open("data.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    # Koalition mit AfD: Nur die Kombination CDU/CSU + AfD, wenn beide vorhanden sind
+    if "CDU/CSU" in eligible_parties and "AfD" in eligible_parties:
+        total = eligible_parties["CDU/CSU"] + eligible_parties["AfD"]
+        coalition = {
+            "parties": ["CDU/CSU", "AfD"],
+            "total": round(total, 1),
+            "possible": total >= majority,
+        }
+        coalitions["with_afd"].append(coalition)
 
-if __name__ == "__main__":
-    try:
-        # Konfiguration des Loggings (Ausgabe in Konsole und Logdatei)
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.FileHandler("scraper.log"),
-                logging.StreamHandler()
-            ]
-        )
-        
-        logging.info("Starte Datenerfassung...")
-        poll_data = fetch_poll_data()
-        if not poll_data:
-            logging.error("Keine Umfragedaten verfügbar!")
-            raise ValueError("Keine Daten zum Berechnen gefunden.")
-        
-        logging.info("Berechne mögliche Koalitionen...")
-        coalitions = calculate_coalitions(poll_data)
-        if not coalitions["with_afd"] and not coalitions["without_afd"]:
-            logging.warning("Keine möglichen Koalitionen gefunden!")
-        
-        logging.info("Speichere Ergebnisse...")
-        save_to_json(coalitions)
-        logging.info("Prozess erfolgreich abgeschlossen!")
-    
-    except Exception as e:
-        logging.error(f"Kritischer Fehler: {str(e)}", exc_info=True)
+    # Koalitionen ohne AfD: Nur Kombinationen aus Parteien (ohne AfD), die mindestens 2 Parteien enthalten
+    # und zwingend CDU/CSU sowie SPD beinhalten.
+    non_afd_parties = {k: v for k, v in eligible_parties.items() if k != "AfD"}
+    for r in range(2, len(n
