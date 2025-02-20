@@ -1,0 +1,5 @@
+- name: Handle Empty Data
+  run: |
+    if [ ! -f "data.json" ]; then
+      echo "{}" > data.json
+    fi
