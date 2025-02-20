@@ -2,9 +2,7 @@ name: Update Coalition Data
 
 on:
   schedule:
-    # Plan: Montags um 6:00 Uhr MEZ (entspricht 5:00 Uhr UTC)
-    - cron: "0 5 * * 1"  # 5:00 Uhr UTC
-
+    - cron: "0 5 * * 1"  # Montags um 6:00 Uhr MEZ (5:00 Uhr UTC)
   workflow_dispatch:
 
 jobs:
@@ -28,13 +26,22 @@ jobs:
       - name: Run Scraper
         run: python scraper.py
 
-      - name: Check Files in Directory
-        run: ls -la
+      - name: Check if `data.json` exists
+        run: |
+          if [ -f "./data.json" ]; then
+            echo "data.json wurde erfolgreich erstellt."
+          else
+            echo "ERROR: data.json wurde nicht erstellt."
+            exit 1
+          fi
+
+      - name: Debug File System
+        run: ls -R
 
       - name: Commit Changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add ./data.json
+          git add data.json
           git commit -m "Update coalition data" || echo "No changes to commit"
           git push
