@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # scraper.py
-# Dieses Skript ruft Umfragedaten von wahlrecht.de ab, berechnet den Durchschnittswert für alle verfügbaren Daten und ermittelt mögliche Regierungskoalitionen.
+# Dieses Skript ruft Umfragedaten von wahlrecht.de ab, berechnet den Durchschnittswert für alle verfügbaren Daten und ermittelt mögliche Regierungskoalitionen mit maximal 3 Partnern.
 
 import logging
 import requests
@@ -77,6 +77,7 @@ def fetch_poll_data():
 def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
     """
     Berechnet mögliche Koalitionen basierend auf Parteien mit mindestens 5% Stimmenanteil.
+    Begrenzung auf maximal 3 Koalitionspartner.
     """
     eligible_parties = {k: v for k, v in poll_data.items() if v >= threshold}
     
@@ -85,7 +86,8 @@ def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
     
     coalitions = {"with_afd": [], "without_afd": []}
     
-    for r in range(2, len(eligible_parties) + 1):
+    # Generiere Kombinationen von maximal 3 Parteien und prüfe, ob CDU/CSU enthalten ist.
+    for r in range(2, 4):  # Nur Kombinationen mit 2 oder 3 Parteien
         for combo in combinations(eligible_parties.keys(), r):
             if "CDU/CSU" not in combo:
                 continue
