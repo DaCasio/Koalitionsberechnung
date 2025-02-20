@@ -1,1 +1,4 @@
-{"error": "\"Die Spalte 'Zeitraum' oder 'Datum' wurde nicht gefunden!\""}
+{
+    "with_afd": [],
+    "without_afd": []
+}
