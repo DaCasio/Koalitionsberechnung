@@ -6,6 +6,9 @@ import json
 
 
 def fetch_poll_data():
+    """
+    Ruft die Tabelle von Wahlrecht.de ab und extrahiert relevante Daten.
+    """
     # URL der Seite mit Umfragedaten
     url = "https://www.wahlrecht.de/umfragen/"
     response = requests.get(url)
@@ -15,43 +18,97 @@ def fetch_poll_data():
     table = soup.find("table", {"class": "wilko"})
     raw_data = pd.read_html(str(table))[0]
     
-    # Debug: Ausgabe von Spaltennamen
-    print("Spaltennamen vor der Transformation:", raw_data.columns.tolist())
+    # Debug: Aktuelle Spaltennamen ausgeben
+    print("Aktuelle Spaltennamen:", raw_data.columns.tolist())
     
     # Erste Zeile als Header setzen
     raw_data.columns = raw_data.iloc[0]
     df = raw_data[1:].reset_index(drop=True)
     
-    # Debug: Bereinigte Spaltennamen anschauen
-    print("Bereinigte Spaltennamen:", df.columns.tolist())
+    # Spalte "Veröffentl." als Datum verwenden
+    if "Veröffentl." not in df.columns:
+        raise KeyError(f"Spalte 'Veröffentl.' nicht vorhanden. Vorhandene Spalten: {df.columns.tolist()}")
     
-    # Versuche, die richtige Datumsspalte zu finden
-    if "Zeitraum" in df.columns:
-        df["Zeitraum"] = df["Zeitraum"].str.extract(r'(\d{2}\.\d{2}\.\d{4})')  # Nur Enddatum
-    elif "Datum" in df.columns:  # Alternative Spalte
-        df["Zeitraum"] = df["Datum"].str.extract(r'(\d{2}\.\d{2}\.\d{4})')
-    else:
-        raise KeyError("Die Spalte 'Zeitraum' oder 'Datum' wurde nicht gefunden!")
-    
-    # Datum in datetime konvertieren
+    # Extrahiere das Veröffentlichungsdatum
+    df["Zeitraum"] = df["Veröffentl."].str.extract(r'(\d{2}\.\d{2}\.\d{4})')
     df["Zeitraum"] = pd.to_datetime(df["Zeitraum"], format='%d.%m.%Y', errors='coerce')
     
     # Filter auf letzte 14 Tage
     two_weeks_ago = datetime.now() - timedelta(days=14)
     df_filtered = df[df["Zeitraum"] >= two_weeks_ago]
-
-    # Nur relevante Parteien und Institute behalten
+    
+    # Parteidaten filtern
     parties = ["CDU/CSU", "SPD", "GRÜNE", "FDP", "DIE LINKE", "AfD", "BSW"]
     institutes = ['Allensbach', 'Verian (Emnid)', 'Forsa', 'Forsch\'gr. Wahlen', 'GMS', 
                   'Infratest dimap', 'INSA', 'YouGov']
+    
+    # Nur relevante Spalten
     df_filtered = df_filtered[["Institut", *parties, "Zeitraum"]]
     df_filtered = df_filtered[df_filtered["Institut"].isin(institutes)]
-
-    # Zahlen konvertieren
+    
+    # Konvertierung der Parteienwerte
     for party in parties:
         df_filtered[party] = pd.to_numeric(df_filtered[party], errors='coerce')
     
     return df_filtered
+
+
+def calculate_weekly_average(data):
+    """
+    Berechnet den Durchschnitt der Parteienwerte der letzten 14 Tage.
+    """
+    parties = ["CDU/CSU", "SPD", "GRÜNE", "FDP", "DIE LINKE", "AfD", "BSW"]
+    averages = data[parties].mean().round(1)  # Durchschnitt berechnen und auf eine Dezimalstelle runden
+    return averages.to_dict()
+
+
+def calculate_coalitions(party_data, include_afd=True):
+    """
+    Berechnet alle möglichen Zwei- und Dreier-Koalitionen.
+    """
+    parties = list(party_data.keys())
+    if not include_afd:
+        parties.remove("AfD")  # AfD ausschließen, falls erforderlich
+    
+    coalitions = []
+    
+    # Zwei-Parteien-Koalitionen
+    for i, p1 in enumerate(parties):
+        for p2 in parties[i+1:]:
+            total = party_data[p1] + party_data[p2]
+            coalitions.append({
+                "parties": [p1, p2],
+                "total": round(total, 1),
+                "majority": total >= 50.0
+            })
+    
+    # Drei-Parteien-Koalitionen
+    for i, p1 in enumerate(parties):
+        for j, p2 in enumerate(parties[i+1:]):
+            for p3 in parties[i+j+2:]:
+                total = party_data[p1] + party_data[p2] + party_data[p3]
+                coalitions.append({
+                    "parties": [p1, p2, p3],
+                    "total": round(total, 1),
+                    "majority": total >= 50.0
+                })
+    
+    return sorted(coalitions, key=lambda x: x['total'], reverse=True)
+
+
+def save_to_json(filename, coalitions_with_afd, coalitions_without_afd):
+    """
+    Speichert die Ergebnisse in einer JSON-Datei.
+    """
+    output = {
+        "with_afd": coalitions_with_afd,
+        "without_afd": coalitions_without_afd
+    }
+    
+    with open(filename, "w") as f:
+        json.dump(output, f, indent=4)
+    
+    print(f"Datei {filename} erfolgreich erstellt!")
 
 
 if __name__ == "__main__":
@@ -62,8 +119,7 @@ if __name__ == "__main__":
         
         if data.empty:
             print("Warnung: Keine Daten in den letzten 14 Tagen gefunden!")
-            with open("data.json", "w") as f:
-                json.dump({"error": "Keine Daten verfügbar"}, f)
+            save_to_json("data.json", [], [])
         else:
             print("Berechne Koalitionen...")
             averages = calculate_weekly_average(data)
@@ -77,5 +133,4 @@ if __name__ == "__main__":
             
     except Exception as e:
         print(f"Kritischer Fehler: {str(e)}")
-        with open("data.json", "w") as f:
-            json.dump({"error": str(e)}, f)
+        save_to_json("data.json", [], [])
