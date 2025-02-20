@@ -1,8 +1,7 @@
-# requirements.txt
-numpy>=1.26.0  # Version mit Python 3.12 Unterstützung
+numpy>=1.26.0
 pandas>=2.1.1
 beautifulsoup4==4.12.2
 requests==2.31.0
 lxml==4.9.3
-setuptools>=68.0.0  # Notwendig für Build-System
+setuptools>=68.0.0
 wheel>=0.40.0
