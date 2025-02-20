@@ -1,5 +1,5 @@
 # scraper.py
-import logging  # Import für Logging hinzugefügt
+import logging
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -56,6 +56,11 @@ def fetch_poll_data():
                 logging.warning(f"Ungültiger Wert für {party_name}: '{text}'")
                 values.append(0.0)  # Setze 0 bei fehlenden Werten
                 
+        # Überprüfe, ob die Anzahl der Werte mit der Anzahl der Institute übereinstimmt
+        if len(values) != len(institutes):
+            logging.warning(f"Anzahl der Werte für {party_name} stimmt nicht überein: {len(values)} Werte, {len(institutes)} Institute")
+            continue
+        
         poll_data[party_name] = values
 
     # Erstelle DataFrame mit Validierung
