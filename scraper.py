@@ -2,7 +2,6 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
 import json
 from itertools import combinations
@@ -13,91 +12,70 @@ def fetch_poll_data():
     soup = BeautifulSoup(response.text, "html.parser")
     table = soup.find("table", {"class": "wilko"})
 
-    # Extrahiere Veröffentlichungsdaten
+    # Extrahiere alle Überschriftenspalten
+    header_row = table.find("tr", id="datum")
     release_dates = [
         span.text.strip() 
-        for span in table.find("tr", id="datum").find_all("span", class_="li")
-    ][1:]
+        for span in header_row.find_all("span", class_="li")
+    ][1:]  # Erste Spalte überspringen
+    
+    print(f"Gefundene Umfragedaten für {len(release_dates)} Institute")
 
-    # Parteien und ihre Zeilen-IDs
-    parties = ["CDU/CSU", "SPD", "GRÜNE", "FDP", "DIE LINKE", "AfD", "BSW"]
-    party_ids = ["cdu", "spd", "gru", "fdp", "lin", "afd", "bsw"]
+    # Definiere alle Parteien und ihre HTML-IDs
+    parties_config = [
+        ("CDU/CSU", "cdu"),
+        ("SPD", "spd"),
+        ("GRÜNE", "gru"),
+        ("FDP", "fdp"),
+        ("DIE LINKE", "lin"),
+        ("AfD", "afd"),
+        ("FREIE WÄHLER", "frw"),
+        ("BSW", "bsw"),
+        ("Sonstige", "son")
+    ]
 
-    # Extrahiere Umfragewerte
+    # Extrahiere die Umfragewerte
     data = []
-    for party_id in party_ids:
+    party_names = []
+    for party_name, party_id in parties_config:
         row = table.find("tr", id=party_id)
-        cells = row.find_all("td")[1:]
+        if not row:
+            print(f"Warnung: Zeile für {party_name} nicht gefunden")
+            continue
+            
+        cells = row.find_all("td")[1:]  # Erste Zelle überspringen
         values = [cell.text.strip().replace("%", "").replace(",", ".") for cell in cells]
+        
+        # Auf Längengleichheit prüfen
+        if len(values) != len(release_dates):
+            print(f"Warnung: {party_name} hat {len(values)} Werte, erwartet {len(release_dates)}")
+            continue
+            
         data.append(values)
+        party_names.append(party_name)
+
+    print(f"Verarbeitete {len(party_names)} Parteien:")
+    print(party_names)
 
     # Erstelle DataFrame
-    df = pd.DataFrame(data, index=parties, columns=release_dates).T
+    df = pd.DataFrame(data, index=party_names, columns=release_dates).T
     
-    # Konvertiere Datum und filtere die letzten 14 Tage
+    # Datumskonvertierung und Filterung
     df["Datum"] = pd.to_datetime(df.index, format="%d.%m.%Y", errors="coerce")
     two_weeks_ago = datetime.now() - timedelta(days=14)
     df_filtered = df[df["Datum"] >= two_weeks_ago]
 
-    # Konvertiere Prozentwerte
-    for party in parties:
+    # Wertekonvertierung
+    for party in party_names:
         df_filtered[party] = pd.to_numeric(df_filtered[party], errors="coerce")
 
-    return df_filtered[parties].mean().to_dict()
+    # Durchschnitt berechnen
+    avg_values = df_filtered[party_names].mean().to_dict()
+    
+    print("\nDurchschnittswerte der letzten 14 Tage:")
+    for party, value in avg_values.items():
+        print(f"{party}: {value:.1f}%")
+    
+    return avg_values
 
-def calculate_coalitions(poll_data):
-    threshold = 5.0
-    majority = 50.0
-    parties = [p for p, v in poll_data.items() if v >= threshold]
-    
-    coalitions = {"with_afd": [], "without_afd": []}
-    
-    # Generiere alle möglichen Kombinationen
-    for r in range(2, len(parties)+1):
-        for combo in combinations(parties, r):
-            if "CDU/CSU" not in combo:
-                continue
-                
-            total = sum(poll_data[p] for p in combo)
-            afd_included = "AfD" in combo
-            bsw_included = "BSW" in combo
-            
-            entry = {
-                "parties": list(combo),
-                "total": round(total, 1),
-                "possible": total >= majority,
-                "bsw": bsw_included
-            }
-            
-            key = "with_afd" if afd_included else "without_afd"
-            coalitions[key].append(entry)
-    
-    # Sortiere die Ergebnisse
-    for key in coalitions:
-        coalitions[key] = sorted(
-            coalitions[key],
-            key=lambda x: (-x["total"], len(x["parties"]))
-        )
-    
-    return coalitions
-
-def save_to_json(data):
-    with open("data.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-if __name__ == "__main__":
-    try:
-        print("Starte Datenerfassung...")
-        poll_data = fetch_poll_data()
-        print("Umfragedaten:", poll_data)
-        
-        print("Berechne Koalitionen...")
-        coalitions = calculate_coalitions(poll_data)
-        
-        print("Speichere Daten...")
-        save_to_json(coalitions)
-        
-        print("Erfolgreich abgeschlossen!")
-    except Exception as e:
-        print(f"Fehler aufgetreten: {str(e)}")
-        raise
+# Rest des Codes (calculate_coalitions, save_to_json) bleibt gleich
