@@ -25,11 +25,11 @@ def fetch_poll_data():
     raw_data.columns = raw_data.iloc[0]
     df = raw_data[1:].reset_index(drop=True)
     
-    # Spalte "Veröffentl." als Datum verwenden
+    # Veröffentlichtes Datum verwenden
     if "Veröffentl." not in df.columns:
         raise KeyError(f"Spalte 'Veröffentl.' nicht vorhanden. Vorhandene Spalten: {df.columns.tolist()}")
     
-    # Extrahiere das Veröffentlichungsdatum
+    # Extrahiere Veröffentlichungsdatum
     df["Zeitraum"] = df["Veröffentl."].str.extract(r'(\d{2}\.\d{2}\.\d{4})')
     df["Zeitraum"] = pd.to_datetime(df["Zeitraum"], format='%d.%m.%Y', errors='coerce')
     
