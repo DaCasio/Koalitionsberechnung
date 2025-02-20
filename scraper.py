@@ -9,36 +9,39 @@ def fetch_poll_data():
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
     table = soup.find("table", {"class": "wilko"})
-    
-    # Extrahiere die Veröffentlichungsdaten aus der 'datum'-Zeile
-    release_dates = [
-        span.text.strip() 
-        for span in table.find("tr", id="datum").find_all("span", class_="li")
-    ][1:]  # Skip empty first cell
 
-    # Parteien und deren Zeilen-IDs
+    # Extrahiere Veröffentlichungsdaten (Header)
+    release_dates = [
+        span.text.strip()
+        for span in table.find("tr", id="datum").find_all("span", class_="li")
+    ][1:]  # Erste Zelle ist leer
+
+    # Parteien und ihre Zeilen-IDs
     parties = ["CDU/CSU", "SPD", "GRÜNE", "FDP", "DIE LINKE", "AfD", "BSW"]
     party_ids = ["cdu", "spd", "gru", "fdp", "lin", "afd", "bsw"]
-    
-    # Extrahiere Umfragewerte für jede Partei (ignoriere erste Spalte)
+
+    # Extrahiere Umfragewerte
     data = []
-    for pid in party_ids:
-        row = table.find("tr", id=pid)
-        values = [cell.text.strip().replace("%", "") for cell in row.find_all("td")][1:]  # Erste Zelle (Parteiname) überspringen
+    for party_id in party_ids:
+        row = table.find("tr", id=party_id)
+        cells = row.find_all("td")[1:]  # Erste Zelle ist der Parteiname
+        values = [cell.text.strip().replace("%", "") for cell in cells]
         data.append(values)
-    
-    # DataFrame mit korrekten Spalten erstellen
+
+    # Erstelle DataFrame
     df = pd.DataFrame(data, index=parties, columns=release_dates).T
-    
-    # Datum konvertieren und filtern
+
+    # Konvertiere Datum und filtere die letzten 14 Tage
     df["Datum"] = pd.to_datetime(df.index, format="%d.%m.%Y", errors="coerce")
     two_weeks_ago = datetime.now() - timedelta(days=14)
     df_filtered = df[df["Datum"] >= two_weeks_ago]
-    
+
+    print("Gefilterte Daten:\n", df_filtered.head())  # Debugging
+
     # Konvertiere Prozentwerte
     for party in parties:
         df_filtered[party] = pd.to_numeric(df_filtered[party], errors="coerce")
-    
+
     return df_filtered
 
-# Rest des Codes (calculate_weekly_average, calculate_coalitions, etc.) bleibt unverändert
+# Rest des Codes (calculate_weekly_average, calculate_coalitions, save_to_json) bleibt unverändert
