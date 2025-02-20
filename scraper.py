@@ -91,24 +91,26 @@ def fetch_poll_data():
 
 def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
     eligible_parties = {k: v for k, v in poll_data.items() if v >= threshold}
+    
+    if not eligible_parties:
+        logging.warning("Keine Parteien über der 5%-Hürde gefunden!")
+    
     logging.info(f"Berücksichtigte Parteien: {eligible_parties}")
 
     coalitions = {"with_afd": [], "without_afd": []}
     
-    for r in range(1, len(eligible_parties)+1):
+    for r in range(2, len(eligible_parties)+1):  # Mindestens zwei Parteien erforderlich
         for combo in combinations(eligible_parties.keys(), r):
             if "CDU/CSU" not in combo:
                 continue
                 
             total = sum(eligible_parties[p] for p in combo)
             afd_included = "AfD" in combo
-            bsw_included = "BSW" in combo
             
             coalition = {
                 "parties": list(combo),
                 "total": round(total, 1),
                 "possible": total >= majority,
-                "bsw": bsw_included
             }
             
             key = "with_afd" if afd_included else "without_afd"
@@ -138,12 +140,21 @@ if __name__ == "__main__":
         )
         
         logging.info("Starte Datenerfassung...")
+        
         poll_data = fetch_poll_data()
         
+        if not poll_data:
+            logging.error("Keine Umfragedaten verfügbar!")
+        
         logging.info("Berechne mögliche Koalitionen...")
+        
         coalitions = calculate_coalitions(poll_data)
         
+        if not coalitions["with_afd"] and not coalitions["without_afd"]:
+            logging.warning("Keine möglichen Koalitionen gefunden!")
+        
         logging.info("Speichere Ergebnisse...")
+        
         save_to_json(coalitions)
         
         logging.info("Prozess erfolgreich abgeschlossen!")
