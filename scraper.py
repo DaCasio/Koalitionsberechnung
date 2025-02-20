@@ -79,4 +79,44 @@ def fetch_poll_data():
     
     return avg_values
 
-# Rest des Codes (calculate_coalitions, save_to_json) unverändert
+def save_to_json(data):
+    # Prüfung auf gültige Daten
+    if not data.get("without_afd") and not data.get("with_afd"):
+        raise ValueError("Keine Koalitionen gefunden - Daten möglicherweise korrupt")
+    
+    # Backup alter Daten
+    if os.path.exists("data.json"):
+        shutil.copy("data.json", "data_backup.json")
+    
+    with open("data.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    
+    print("Erfolgreich gespeichert in data.json")
+
+if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.FileHandler("scraper.log"),
+            logging.StreamHandler()
+        ]
+    )
+    
+    try:
+        logger.info("Starte Datenerfassung...")
+        poll_data = fetch_poll_data()
+        
+        logger.info("Berechne Koalitionen...")
+        coalitions = calculate_coalitions(poll_data)
+        
+        logger.info("Validiere Ergebnisse...")
+        if not coalitions["with_afd"] and not coalitions["without_afd"]:
+            raise ValueError("Keine möglichen Koalitionen gefunden")
+            
+        save_to_json(coalitions)
+        logger.info("Prozess erfolgreich abgeschlossen")
+        
+    except Exception as e:
+        logger.error(f"Kritischer Fehler: {str(e)}", exc_info=True)
+        sys.exit(1)
