@@ -11,33 +11,6 @@
     {
       "parties": [
         "CDU/CSU",
-        "SPD",
-        "AfD"
-      ],
-      "total": 65.9,
-      "possible": true
-    },
-    {
-      "parties": [
-        "CDU/CSU",
-        "GRÜNE",
-        "AfD"
-      ],
-      "total": 64.2,
-      "possible": true
-    },
-    {
-      "parties": [
-        "CDU/CSU",
-        "DIE LINKE",
-        "AfD"
-      ],
-      "total": 57.1,
-      "possible": true
-    },
-    {
-      "parties": [
-        "CDU/CSU",
         "AfD",
         "Sonstige"
       ],
@@ -46,38 +19,6 @@
     }
   ],
   "without_afd": [
-    {
-      "parties": [
-        "CDU/CSU",
-        "SPD"
-      ],
-      "total": 45.5,
-      "possible": false
-    },
-    {
-      "parties": [
-        "CDU/CSU",
-        "GRÜNE"
-      ],
-      "total": 43.8,
-      "possible": false
-    },
-    {
-      "parties": [
-        "CDU/CSU",
-        "DIE LINKE"
-      ],
-      "total": 36.7,
-      "possible": false
-    },
-    {
-      "parties": [
-        "CDU/CSU",
-        "Sonstige"
-      ],
-      "total": 35.6,
-      "possible": false
-    },
     {
       "parties": [
         "CDU/CSU",
@@ -113,24 +54,7 @@
       ],
       "total": 50.1,
       "possible": true
-    },
-    {
-      "parties": [
-        "CDU/CSU",
-        "GRÜNE",
-        "Sonstige"
-      ],
-      "total": 49.0,
-      "possible": false
-    },
-    {
-      "parties": [
-        "CDU/CSU",
-        "DIE LINKE",
-        "Sonstige"
-      ],
-      "total": 41.9,
-      "possible": false
     }
-  ]
+  ],
+  "minority_with_afd": []
 }
