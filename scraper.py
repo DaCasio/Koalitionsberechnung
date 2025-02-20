@@ -119,4 +119,54 @@ def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
     # Koalitionen ohne AfD: Nur Kombinationen aus Parteien (ohne AfD), die mindestens 2 Parteien enthalten
     # und zwingend CDU/CSU sowie SPD beinhalten.
     non_afd_parties = {k: v for k, v in eligible_parties.items() if k != "AfD"}
-    for r in range(2, len(n
+    for r in range(2, len(non_afd_parties) + 1):
+        for combo in combinations(non_afd_parties.keys(), r):
+            if "CDU/CSU" not in combo or "SPD" not in combo:
+                continue
+            total = sum(non_afd_parties[p] for p in combo)
+            if total < majority:
+                continue
+            coalition = {
+                "parties": list(combo),
+                "total": round(total, 1),
+                "possible": True,
+            }
+            coalitions["without_afd"].append(coalition)
+
+    return coalitions
+
+def save_to_json(data):
+    """
+    Speichert das Ergebnis (Koalitionen) in der data.json.
+    """
+    with open("data.json", "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+if __name__ == "__main__":
+    try:
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            handlers=[
+                logging.FileHandler("scraper.log"),
+                logging.StreamHandler()
+            ]
+        )
+        
+        logging.info("Starte Datenerfassung...")
+        poll_data = fetch_poll_data()
+        if not poll_data:
+            logging.error("Keine Umfragedaten verfügbar!")
+            raise ValueError("Keine Daten zum Berechnen gefunden.")
+        
+        logging.info("Berechne mögliche Koalitionen...")
+        coalitions = calculate_coalitions(poll_data)
+        if not coalitions["with_afd"] and not coalitions["without_afd"]:
+            logging.warning("Keine möglichen Koalitionen gefunden!")
+        
+        logging.info("Speichere Ergebnisse...")
+        save_to_json(coalitions)
+        logging.info("Prozess erfolgreich abgeschlossen!")
+    
+    except Exception as e:
+        logging.error(f"Kritischer Fehler: {str(e)}", exc_info=True)
