@@ -5,6 +5,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import json
 from itertools import combinations
+import logging
 
 def fetch_poll_data():
     url = "https://www.wahlrecht.de/umfragen/"
