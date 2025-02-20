@@ -2,18 +2,15 @@ name: Update Coalition Data
 
 on:
   schedule:
-    - cron: "0 06 * * 1"  # Montags um 06:00 Uhr
+      # Plan: Montags um 6:00 Uhr MEZ (entspricht 5:00 Uhr UTC)
+      - cron: "0 5 * * 1"  # 5:00 Uhr UTC
   workflow_dispatch:
 
 jobs:
   update:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Clear Python Cache
-        run: |
-          python -m pip cache purge
-    
       - name: Checkout Repository
         uses: actions/checkout@v3
       
@@ -25,16 +22,18 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install --upgrade numpy pandas
           pip install -r requirements.txt
       
       - name: Run Scraper
         run: python scraper.py
       
-      - name: Commit and Push Changes
+      - name: Check Files in Directory
+        run: ls -la
+        
+      - name: Commit Changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add data.json
+          git add ./data.json
           git commit -m "Update coalition data" || echo "No changes to commit"
           git push
