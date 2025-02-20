@@ -24,6 +24,8 @@ def fetch_poll_data():
         for span in header_row.find_all("span", class_="li")
     ][1:]  # Erste Spalte überspringen
 
+    logging.info(f"Institute gefunden: {institutes}")
+
     # Vollständige Parteienkonfiguration
     parties_config = [
         ("CDU/CSU", "cdu"),
@@ -63,6 +65,8 @@ def fetch_poll_data():
         
         poll_data[party_name] = values
 
+    logging.info(f"Rohdaten für Parteien: {poll_data}")
+
     # Erstelle DataFrame mit Validierung
     df = pd.DataFrame(poll_data, index=institutes)
     
@@ -77,15 +81,15 @@ def fetch_poll_data():
     cutoff_date = datetime.now() - timedelta(days=14)
     df_filtered = df[df.index >= cutoff_date]
 
+    logging.info(f"Gefilterte Daten (letzte 14 Tage):\n{df_filtered}")
+
     # Behandlung fehlender Werte
     df_filtered = df_filtered.replace(0.0, pd.NA).dropna(how="all")
     
     # Durchschnittsberechnung mit Rundung
     avg_values = df_filtered.mean().round(1).to_dict()
     
-    logging.info("Aktuelle Durchschnittswerte:")
-    for party, value in avg_values.items():
-        logging.info(f"{party}: {value}%")
+    logging.info(f"Durchschnittswerte:\n{avg_values}")
     
     return avg_values
 
@@ -116,12 +120,9 @@ def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
             key = "with_afd" if afd_included else "without_afd"
             coalitions[key].append(coalition)
     
-    for key in coalitions:
-        coalitions[key].sort(
-            key=lambda x: (-x["total"], len(x["parties"])),
-            reverse=False
-        )
-    
+    logging.info(f"Koalitionen mit AfD:\n{coalitions['with_afd']}")
+    logging.info(f"Koalitionen ohne AfD:\n{coalitions['without_afd']}")
+
     return coalitions
 
 def save_to_json(data):
@@ -161,4 +162,3 @@ if __name__ == "__main__":
         
     except Exception as e:
         logging.error(f"Kritischer Fehler: {str(e)}", exc_info=True)
-        
