@@ -122,7 +122,7 @@ def format_for_lametric(coalitions):
     frames = []
     
     # Waage-Icon-ID (Beispiel)
-    icon_id = "661"  # Beispiel-ID für eine Waage
+    icon_id = "87"  # Beispiel-ID für eine Waage
     
     for key, coalition_list in coalitions.items():
         for coalition in coalition_list:
