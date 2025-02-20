@@ -25,7 +25,11 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Scraper
-        run: python scraper.py
+        run: |
+          # Aktiviert die UTF-8 Unterstützung
+          PYTHONIOENCODING=utf-8
+          python scraper.py
+          cat data.json  # Debug-Ausgabe
 
       - name: Commit Changes
         run: |
