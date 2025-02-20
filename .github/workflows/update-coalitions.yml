@@ -1,8 +1,9 @@
+# .github/workflows/update-coalitions.yml
 name: Update Coalition Data
 
 on:
   schedule:
-    - cron: "0 5 * * 1"  # Montags 6:00 MEZ
+    - cron: "0 5 * * 1"
   workflow_dispatch:
 
 jobs:
@@ -13,32 +14,32 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Set up Python
+      - name: Set up Python 3.10  # Explizite Python 3.10 Installation
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: "3.10"
           check-latest: true
 
-      - name: Install Dependencies
+      - name: Install System Dependencies
         run: |
-          python -m pip install --upgrade pip
+          sudo apt-get update
+          sudo apt-get install -y python3-dev build-essential
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          
-      - name: Run Scraper with Debug
-        env:
-          TZ: Europe/Berlin
+
+      - name: Run Scraper
         run: |
-          python -X utf8 -u scraper.py | tee scraper.log
-          echo "Scraper Log:"
-          cat scraper.log
+          python -X utf8 scraper.py
+          cat data.json
 
       - name: Commit Changes
         run: |
-          git config --global --add safe.directory /github/workspace
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add data.json scraper.log
-          git diff --cached --exit-code || (git commit -m "Update: $(date -Is)" && git push)
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add data.json
+          git commit -m "Update data $(date +'%Y-%m-%d')" || echo "No changes"
+          git push
