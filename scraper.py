@@ -115,13 +115,19 @@ def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
     
     return coalitions
 
+def truncate_text(text, max_length=7):
+    """
+    Kürzt einen Text auf die maximale Länge von Zeichen (7 Zeichen für LaMetric).
+    """
+    return text[:max_length]
+
 def format_for_lametric(coalitions):
     """
     Formatiert die Koalitionsdaten im LaMetric-kompatiblen JSON-Format.
     """
     frames = []
     
-    # Nummer-Icon-IDs
+   # Nummer-Icon-IDs
     icon_ids = [
         16880, 16881, 16882, 16883, 16884, 16885, 16886, 16887,
         16888, 16889, 16879, 16890, 16891, 16892, 16893, 16894,
@@ -132,32 +138,32 @@ def format_for_lametric(coalitions):
     icon_index = -1
     
     # Koalitionen mit AfD
-    frames.append({"text": "Koalitionen mit AfD", "icon": str(icon_ids[icon_index + 1])})
+    frames.append({"text": truncate_text("Koalit.AfD"), "icon": str(icon_ids[0])})
     
     for coalition in coalitions["with_afd"]:
         if coalition["possible"]:
             icon_index += 1
             frames.append({
-                "text": f"{' + '.join(coalition['parties'])}",
+                "text": truncate_text(f"{' + '.join(coalition['parties'])}"),
                 "icon": str(icon_ids[icon_index])
             })
             frames.append({
-                "text": f"Gesamt: {coalition['total']}%",
+                "text": truncate_text(f"Gesamt:{coalition['total']}%"),
                 "icon": str(icon_ids[icon_index])
             })
     
     # Koalitionen ohne AfD
-    frames.append({"text": "Koalitionen ohne AfD", "icon": str(icon_ids[icon_index + 1])})
+    frames.append({"text": truncate_text("Koalit.oAf"), "icon": str(icon_ids[icon_index + 1])})
     
     for coalition in coalitions["without_afd"]:
         if coalition["possible"]:
             icon_index += 1
             frames.append({
-                "text": f"{' + '.join(coalition['parties'])}",
+                "text": truncate_text(f"{' + '.join(coalition['parties'])}"),
                 "icon": str(icon_ids[icon_index])
             })
             frames.append({
-                "text": f"Gesamt: {coalition['total']}%",
+                "text": truncate_text(f"Gesamt:{coalition['total']}%"),
                 "icon": str(icon_ids[icon_index])
             })
     
