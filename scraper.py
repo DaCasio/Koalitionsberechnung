@@ -115,11 +115,11 @@ def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
     
     return coalitions
 
-def truncate_text(text, max_length=7):
+def split_text(text, max_length=7):
     """
-    Kürzt einen Text auf die maximale Länge von Zeichen (7 Zeichen für LaMetric).
+    Teilt einen Text in mehrere Teile auf, die jeweils maximal `max_length` Zeichen lang sind.
     """
-    return text[:max_length]
+    return [text[i:i + max_length] for i in range(0, len(text), max_length)]
 
 def format_for_lametric(coalitions):
     """
@@ -127,7 +127,7 @@ def format_for_lametric(coalitions):
     """
     frames = []
     
-   # Nummer-Icon-IDs
+    # Nummer-Icon-IDs (Beispiel-Liste)
     icon_ids = [
         16880, 16881, 16882, 16883, 16884, 16885, 16886, 16887,
         16888, 16889, 16879, 16890, 16891, 16892, 16893, 16894,
@@ -138,32 +138,34 @@ def format_for_lametric(coalitions):
     icon_index = -1
     
     # Koalitionen mit AfD
-    frames.append({"text": truncate_text("Koalit.AfD"), "icon": str(icon_ids[0])})
+    frames.append({"text": split_text("Koalit.AfD")[0], "icon": str(icon_ids[0])})
     
     for coalition in coalitions["with_afd"]:
         if coalition["possible"]:
             icon_index += 1
+            for part in split_text(f"{' + '.join(coalition['parties'])}"):
+                frames.append({
+                    "text": part,
+                    "icon": str(icon_ids[icon_index])
+                })
             frames.append({
-                "text": truncate_text(f"{' + '.join(coalition['parties'])}"),
-                "icon": str(icon_ids[icon_index])
-            })
-            frames.append({
-                "text": truncate_text(f"Gesamt:{coalition['total']}%"),
+                "text": f"Gesamt:{coalition['total']}%",
                 "icon": str(icon_ids[icon_index])
             })
     
     # Koalitionen ohne AfD
-    frames.append({"text": truncate_text("Koalit.oAf"), "icon": str(icon_ids[icon_index + 1])})
+    frames.append({"text": split_text("Koalit.oAf")[0], "icon": str(icon_ids[icon_index + 1])})
     
     for coalition in coalitions["without_afd"]:
         if coalition["possible"]:
             icon_index += 1
+            for part in split_text(f"{' + '.join(coalition['parties'])}"):
+                frames.append({
+                    "text": part,
+                    "icon": str(icon_ids[icon_index])
+                })
             frames.append({
-                "text": truncate_text(f"{' + '.join(coalition['parties'])}"),
-                "icon": str(icon_ids[icon_index])
-            })
-            frames.append({
-                "text": truncate_text(f"Gesamt:{coalition['total']}%"),
+                "text": f"Gesamt:{coalition['total']}%",
                 "icon": str(icon_ids[icon_index])
             })
     
