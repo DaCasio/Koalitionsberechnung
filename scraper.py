@@ -118,7 +118,9 @@ def calculate_coalitions(poll_data, threshold=5.0, majority=50.0):
 def split_text(text, max_length=7):
     """
     Teilt einen Text in mehrere Teile auf, die jeweils maximal `max_length` Zeichen lang sind.
+    Entfernt explizit unerwünschte Teile wie 'ige' bei 'Sonstige'.
     """
+    text = text.replace("Sonstige", "Sonst")  # Kürze 'Sonstige' zu 'Sonst'
     return [text[i:i + max_length] for i in range(0, len(text), max_length)]
 
 def format_for_lametric(coalitions):
@@ -149,7 +151,11 @@ def format_for_lametric(coalitions):
                     "icon": str(icon_ids[icon_index])
                 })
             frames.append({
-                "text": f"Gesamt:{coalition['total']}%",
+                "text": f"Gesamt:",
+                "icon": str(icon_ids[icon_index])
+            })
+            frames.append({
+                "text": f"{coalition['total']}%",
                 "icon": str(icon_ids[icon_index])
             })
     
@@ -165,7 +171,11 @@ def format_for_lametric(coalitions):
                     "icon": str(icon_ids[icon_index])
                 })
             frames.append({
-                "text": f"Gesamt:{coalition['total']}%",
+                "text": f"Gesamt:",
+                "icon": str(icon_ids[icon_index])
+            })
+            frames.append({
+                "text": f"{coalition['total']}%",
                 "icon": str(icon_ids[icon_index])
             })
     
