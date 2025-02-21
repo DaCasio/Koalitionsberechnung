@@ -1,60 +1,60 @@
 {
-  "with_afd": [
+  "frames": [
     {
-      "parties": [
-        "CDU/CSU",
-        "AfD"
-      ],
-      "total": 50.8,
-      "possible": true
+      "text": "Koalitionen mit AfD",
+      "icon": "16880"
     },
     {
-      "parties": [
-        "CDU/CSU",
-        "AfD",
-        "Sonstige"
-      ],
-      "total": 56.0,
-      "possible": true
+      "text": "CDU/CSU + AfD",
+      "icon": "16880"
+    },
+    {
+      "text": "Gesamt: 50.8%",
+      "icon": "16880"
+    },
+    {
+      "text": "CDU/CSU + AfD + Sonstige",
+      "icon": "16881"
+    },
+    {
+      "text": "Gesamt: 56.0%",
+      "icon": "16881"
+    },
+    {
+      "text": "Koalitionen ohne AfD",
+      "icon": "16880"
+    },
+    {
+      "text": "CDU/CSU + SPD + GRÜNE",
+      "icon": "16882"
+    },
+    {
+      "text": "Gesamt: 58.9%",
+      "icon": "16882"
+    },
+    {
+      "text": "CDU/CSU + SPD + DIE LINKE",
+      "icon": "16883"
+    },
+    {
+      "text": "Gesamt: 51.8%",
+      "icon": "16883"
+    },
+    {
+      "text": "CDU/CSU + SPD + Sonstige",
+      "icon": "16884"
+    },
+    {
+      "text": "Gesamt: 50.7%",
+      "icon": "16884"
+    },
+    {
+      "text": "CDU/CSU + GRÜNE + DIE LINKE",
+      "icon": "16885"
+    },
+    {
+      "text": "Gesamt: 50.1%",
+      "icon": "16885"
     }
-  ],
-  "without_afd": [
-    {
-      "parties": [
-        "CDU/CSU",
-        "SPD",
-        "GRÜNE"
-      ],
-      "total": 58.9,
-      "possible": true
-    },
-    {
-      "parties": [
-        "CDU/CSU",
-        "SPD",
-        "DIE LINKE"
-      ],
-      "total": 51.8,
-      "possible": true
-    },
-    {
-      "parties": [
-        "CDU/CSU",
-        "SPD",
-        "Sonstige"
-      ],
-      "total": 50.7,
-      "possible": true
-    },
-    {
-      "parties": [
-        "CDU/CSU",
-        "GRÜNE",
-        "DIE LINKE"
-      ],
-      "total": 50.1,
-      "possible": true
-    }
-  ],
-  "minority_with_afd": []
+  ]
 }
