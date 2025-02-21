@@ -79,3 +79,13 @@
 2025-02-21 10:15:01,163 - INFO - Formatiere Daten für LaMetric...
 2025-02-21 10:15:01,163 - INFO - Daten erfolgreich in data.json geschrieben.
 2025-02-21 10:15:01,163 - INFO - Prozess erfolgreich abgeschlossen!
+2025-02-21 10:20:10,423 - INFO - Starte Datenerfassung...
+2025-02-21 10:20:11,515 - INFO - Gefundene Institute: ['31.01.2025', '18.02.2025', '20.02.2025', '19.02.2025', '13.02.2025', '20.02.2025', '21.02.2025']
+2025-02-21 10:20:11,518 - INFO - Rohdaten für Parteien: {'CDU/CSU': [32.0, 30.0, 30.0, 28.0, 31.0, 32.0, 30.0], 'SPD': [15.0, 15.0, 16.0, 16.0, 15.0, 14.0, 15.0], 'GRÜNE': [13.0, 14.0, 13.0, 14.0, 13.0, 14.0, 13.0], 'FDP': [5.0, 4.0, 5.0, 4.5, 4.0, 4.0, 4.0], 'DIE LINKE': [6.0, 4.0, 7.0, 8.0, 6.0, 6.0, 7.0], 'AfD': [20.0, 20.0, 20.0, 21.0, 20.0, 21.0, 21.0], 'FREIE WÄHLER': [0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0], 'Sonstige': [5.0, 8.0, 5.0, 4.0, 5.0, 4.5, 5.0]}
+2025-02-21 10:20:11,519 - INFO - Durchschnittswerte: {'CDU/CSU': 30.4, 'SPD': 15.1, 'GRÜNE': 13.4, 'FDP': 4.4, 'DIE LINKE': 6.3, 'AfD': 20.4, 'FREIE WÄHLER': 0.3, 'Sonstige': 5.2}
+2025-02-21 10:20:11,520 - INFO - Berechne mögliche Koalitionen...
+2025-02-21 10:20:11,520 - INFO - Koalitionen mit AfD: [{'parties': ['CDU/CSU', 'AfD'], 'total': 50.8, 'possible': True}, {'parties': ['CDU/CSU', 'AfD', 'Sonstige'], 'total': 56.0, 'possible': True}]
+2025-02-21 10:20:11,521 - INFO - Koalitionen ohne AfD: [{'parties': ['CDU/CSU', 'SPD'], 'total': 45.5, 'possible': False}, {'parties': ['CDU/CSU', 'GRÜNE'], 'total': 43.8, 'possible': False}, {'parties': ['CDU/CSU', 'DIE LINKE'], 'total': 36.7, 'possible': False}, {'parties': ['CDU/CSU', 'Sonstige'], 'total': 35.6, 'possible': False}, {'parties': ['CDU/CSU', 'SPD', 'GRÜNE'], 'total': 58.9, 'possible': True}, {'parties': ['CDU/CSU', 'SPD', 'DIE LINKE'], 'total': 51.8, 'possible': True}, {'parties': ['CDU/CSU', 'SPD', 'Sonstige'], 'total': 50.7, 'possible': True}, {'parties': ['CDU/CSU', 'GRÜNE', 'DIE LINKE'], 'total': 50.1, 'possible': True}, {'parties': ['CDU/CSU', 'GRÜNE', 'Sonstige'], 'total': 49.0, 'possible': False}, {'parties': ['CDU/CSU', 'DIE LINKE', 'Sonstige'], 'total': 41.9, 'possible': False}]
+2025-02-21 10:20:11,521 - INFO - Formatiere Daten für LaMetric...
+2025-02-21 10:20:11,521 - INFO - Daten erfolgreich in data.json geschrieben.
+2025-02-21 10:20:11,521 - INFO - Prozess erfolgreich abgeschlossen!
