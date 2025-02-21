@@ -9,7 +9,11 @@
       "icon": "16880"
     },
     {
-      "text": "Gesamt:",
+      "text": " + AfD",
+      "icon": "16880"
+    },
+    {
+      "text": "Gesamt:50.8%",
       "icon": "16880"
     },
     {
@@ -17,7 +21,19 @@
       "icon": "16881"
     },
     {
-      "text": "Gesamt:",
+      "text": " + AfD ",
+      "icon": "16881"
+    },
+    {
+      "text": "+ Sonst",
+      "icon": "16881"
+    },
+    {
+      "text": "ige",
+      "icon": "16881"
+    },
+    {
+      "text": "Gesamt:56.0%",
       "icon": "16881"
     },
     {
@@ -29,7 +45,15 @@
       "icon": "16882"
     },
     {
-      "text": "Gesamt:",
+      "text": " + SPD ",
+      "icon": "16882"
+    },
+    {
+      "text": "+ GRÜNE",
+      "icon": "16882"
+    },
+    {
+      "text": "Gesamt:58.9%",
       "icon": "16882"
     },
     {
@@ -37,7 +61,19 @@
       "icon": "16883"
     },
     {
-      "text": "Gesamt:",
+      "text": " + SPD ",
+      "icon": "16883"
+    },
+    {
+      "text": "+ DIE L",
+      "icon": "16883"
+    },
+    {
+      "text": "INKE",
+      "icon": "16883"
+    },
+    {
+      "text": "Gesamt:51.8%",
       "icon": "16883"
     },
     {
@@ -45,7 +81,19 @@
       "icon": "16884"
     },
     {
-      "text": "Gesamt:",
+      "text": " + SPD ",
+      "icon": "16884"
+    },
+    {
+      "text": "+ Sonst",
+      "icon": "16884"
+    },
+    {
+      "text": "ige",
+      "icon": "16884"
+    },
+    {
+      "text": "Gesamt:50.7%",
       "icon": "16884"
     },
     {
@@ -53,7 +101,19 @@
       "icon": "16885"
     },
     {
-      "text": "Gesamt:",
+      "text": " + GRÜN",
+      "icon": "16885"
+    },
+    {
+      "text": "E + DIE",
+      "icon": "16885"
+    },
+    {
+      "text": " LINKE",
+      "icon": "16885"
+    },
+    {
+      "text": "Gesamt:50.1%",
       "icon": "16885"
     }
   ]
