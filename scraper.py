@@ -9,7 +9,7 @@ import pandas as pd
 from itertools import combinations
 import json
 
-# Konfiguration: Parteien und Nummer-Icon-IDs
+# Konfigurationen
 PARTIES_CONFIG = [
     ("CDU/CSU", "cdu"),
     ("SPD", "spd"),
@@ -41,7 +41,6 @@ def fetch_poll_data():
         logging.error("Umfragetabelle nicht gefunden - HTML-Struktur möglicherweise geändert")
         raise ValueError("Umfragetabelle nicht gefunden")
 
-    # Extrahiere Institute/Datumsangaben aus der Kopfzeile
     header_row = table.find("tr", {"id": "datum"})
     institutes = [span.text.strip() for span in header_row.find_all("span", class_="li")][1:]
     
@@ -64,7 +63,6 @@ def fetch_poll_data():
         if len(values) == len(institutes):
             poll_data[party_name] = values
 
-    # Berechne den Durchschnittswert je Partei
     df = pd.DataFrame(poll_data)
     return df.mean().round(1).to_dict()
 
@@ -104,8 +102,10 @@ def calculate_coalitions(poll_data):
 def split_text(text):
     """
     Teilt einen Text in mehrere Teile auf (maximal 7 Zeichen pro Teil).
+    Kürzt explizit 'GRÜNE' zu 'GRÜN' und 'DIE LINKE' zu 'LINKE'.
     """
-    text = text.replace("Sonstige", "Sonst")
+    text = text.replace("GRÜNE", "GRÜN").replace("DIE LINKE", "LINKE").replace("Sonstige", "Sonst")
+    
     return [text[i:i + 7] for i in range(0, len(text), 7)]
 
 def format_for_lametric(coalitions):
@@ -123,7 +123,7 @@ def format_for_lametric(coalitions):
         if coalition["possible"]:
             icon_index += 1
             for part in split_text(f"{' + '.join(coalition['parties'])}"):
-                frames.append({"text": part, "icon": str(ICON_IDS[icon_index])})
+                frames.append({"text": part.strip(), "icon": str(ICON_IDS[icon_index])})
             frames.append({"text": f"Gesamt:", "icon": str(ICON_IDS[icon_index])})
             frames.append({"text": f"{coalition['total']}%", "icon": str(ICON_IDS[icon_index])})
     
@@ -134,7 +134,7 @@ def format_for_lametric(coalitions):
         if coalition["possible"]:
             icon_index += 1
             for part in split_text(f"{' + '.join(coalition['parties'])}"):
-                frames.append({"text": part, "icon": str(ICON_IDS[icon_index])})
+                frames.append({"text": part.strip(), "icon": str(ICON_IDS[icon_index])})
             frames.append({"text": f"Gesamt:", "icon": str(ICON_IDS[icon_index])})
             frames.append({"text": f"{coalition['total']}%", "icon": str(ICON_IDS[icon_index])})
     
