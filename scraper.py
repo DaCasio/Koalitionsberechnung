@@ -167,8 +167,16 @@ def save_to_json(data, filename="lametric.json"):
     """
     Speichert das Ergebnis (Koalitionen) oder LaMetric-Daten in einer JSON-Datei.
     """
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    try:
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        logging.info(f"Daten erfolgreich in {filename} geschrieben.")
+        
+        # Debugging-Ausgabe der geschriebenen Daten
+        logging.debug(json.dumps(data, indent=2))
+        
+    except Exception as e:
+        logging.error(f"Fehler beim Schreiben von {filename}: {str(e)}")
 
 if __name__ == "__main__":
     try:
