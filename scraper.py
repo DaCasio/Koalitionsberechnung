@@ -121,16 +121,45 @@ def format_for_lametric(coalitions):
     """
     frames = []
     
-    # Waage-Icon-ID (Beispiel)
-    icon_id = "661"  # Beispiel-ID für eine Waage
+    # Waage-Icon-IDs (Beispiel-Liste)
+    icon_ids = [
+        16880, 16881, 16882, 16883, 16884, 16885, 16886, 16887,
+        16888, 16889, 16879, 16890, 16891, 16892, 16893, 16894,
+        16895, 16896, 16898, 16899, 16900, 16901, 16905, 16906,
+        16907, 16908, 16909, 16910, 16911, 16912, 16913
+    ]
     
-    for key, coalition_list in coalitions.items():
-        for coalition in coalition_list:
-            if coalition["possible"]:  # Nur Koalitionen mit mindestens 50%
-                frames.append({
-                    "text": f"{', '.join(coalition['parties'])}: {coalition['total']}%",
-                    "icon": icon_id
-                })
+    icon_index = -1
+    
+    # Koalitionen mit AfD
+    frames.append({"text": "Koalitionen mit AfD", "icon": str(icon_ids[0])})
+    
+    for coalition in coalitions["with_afd"]:
+        if coalition["possible"]:
+            icon_index += 1
+            frames.append({
+                "text": f"{' + '.join(coalition['parties'])}",
+                "icon": str(icon_ids[icon_index])
+            })
+            frames.append({
+                "text": f"Gesamt: {coalition['total']}%",
+                "icon": str(icon_ids[icon_index])
+            })
+    
+    # Koalitionen ohne AfD
+    frames.append({"text": "Koalitionen ohne AfD", "icon": str(icon_ids[0])})
+    
+    for coalition in coalitions["without_afd"]:
+        if coalition["possible"]:
+            icon_index += 1
+            frames.append({
+                "text": f"{' + '.join(coalition['parties'])}",
+                "icon": str(icon_ids[icon_index])
+            })
+            frames.append({
+                "text": f"Gesamt: {coalition['total']}%",
+                "icon": str(icon_ids[icon_index])
+            })
     
     return {"frames": frames}
 
