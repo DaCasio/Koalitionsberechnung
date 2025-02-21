@@ -38,8 +38,7 @@ def fetch_poll_data():
     table = soup.find("table", {"class": "wilko"})
 
     if not table:
-        logging.error("Umfragetabelle nicht gefunden - HTML-Struktur möglicherweise geändert")
-        raise ValueError("Umfragetabelle nicht gefunden")
+        raise ValueError("Umfragetabelle nicht gefunden - HTML-Struktur möglicherweise geändert")
 
     header_row = table.find("tr", {"id": "datum"})
     institutes = [span.text.strip() for span in header_row.find_all("span", class_="li")][1:]
@@ -48,7 +47,6 @@ def fetch_poll_data():
     for party_name, party_id in PARTIES_CONFIG:
         row = table.find("tr", {"id": party_id})
         if not row:
-            logging.warning(f"Zeile für {party_name} nicht gefunden")
             continue
 
         cells = row.find_all("td")[1:len(institutes)+1]
@@ -63,12 +61,12 @@ def fetch_poll_data():
         if len(values) == len(institutes):
             poll_data[party_name] = values
 
-    df = pd.DataFrame(poll_data)
-    return df.mean().round(1).to_dict()
+    return pd.DataFrame(poll_data).mean().round(1).to_dict()
 
 def calculate_coalitions(poll_data):
     """
     Berechnet mögliche Koalitionen basierend auf Parteien mit mindestens 5% Stimmenanteil.
+    Berücksichtigt nur die erste Konstellation mit einer Mehrheit.
     """
     threshold = 5.0
     majority = 50.0
@@ -77,7 +75,10 @@ def calculate_coalitions(poll_data):
     
     coalitions = {"with_afd": [], "without_afd": []}
     
-    for r in range(2, 4): 
+    found_majority_with_afd = False
+    found_majority_without_afd = False
+
+    for r in range(2, len(eligible_parties) + 1): 
         for combo in combinations(eligible_parties.keys(), r):
             if "CDU/CSU" not in combo:
                 continue
@@ -94,8 +95,18 @@ def calculate_coalitions(poll_data):
                 "possible": total >= majority,
             }
             
-            key = "with_afd" if afd_included else "without_afd"
-            coalitions[key].append(coalition)
+            if afd_included and coalition["possible"] and not found_majority_with_afd:
+                coalitions["with_afd"].append(coalition)
+                found_majority_with_afd = True
+            elif not afd_included and coalition["possible"] and not found_majority_without_afd:
+                coalitions["without_afd"].append(coalition)
+                found_majority_without_afd = True
+
+            if found_majority_with_afd and found_majority_without_afd:
+                break
+
+        if found_majority_with_afd and found_majority_without_afd:
+            break
 
     return coalitions
 
@@ -120,23 +131,21 @@ def format_for_lametric(coalitions):
     frames.append({"text": split_text("Koalit.AfD")[0], "icon": str(ICON_IDS[0])})
     
     for coalition in coalitions["with_afd"]:
-        if coalition["possible"]:
-            icon_index += 1
-            for part in split_text(f"{' + '.join(coalition['parties'])}"):
-                frames.append({"text": part.strip(), "icon": str(ICON_IDS[icon_index])})
-            frames.append({"text": f"Gesamt:", "icon": str(ICON_IDS[icon_index])})
-            frames.append({"text": f"{coalition['total']}%", "icon": str(ICON_IDS[icon_index])})
+        icon_index += 1
+        for part in split_text(f"{' + '.join(coalition['parties'])}"):
+            frames.append({"text": part.strip(), "icon": str(ICON_IDS[icon_index])})
+        frames.append({"text": f"Gesamt:", "icon": str(ICON_IDS[icon_index])})
+        frames.append({"text": f"{coalition['total']}%", "icon": str(ICON_IDS[icon_index])})
     
     # Koalitionen ohne AfD
     frames.append({"text": split_text("Koalit.oAf")[0], "icon": str(ICON_IDS[icon_index + 1])})
     
     for coalition in coalitions["without_afd"]:
-        if coalition["possible"]:
-            icon_index += 1
-            for part in split_text(f"{' + '.join(coalition['parties'])}"):
-                frames.append({"text": part.strip(), "icon": str(ICON_IDS[icon_index])})
-            frames.append({"text": f"Gesamt:", "icon": str(ICON_IDS[icon_index])})
-            frames.append({"text": f"{coalition['total']}%", "icon": str(ICON_IDS[icon_index])})
+        icon_index += 1
+        for part in split_text(f"{' + '.join(coalition['parties'])}"):
+            frames.append({"text": part.strip(), "icon": str(ICON_IDS[icon_index])})
+        frames.append({"text": f"Gesamt:", "icon": str(ICON_IDS[icon_index])})
+        frames.append({"text": f"{coalition['total']}%", "icon": str(ICON_IDS[icon_index])})
     
     return {"frames": frames}
 
