@@ -163,20 +163,20 @@ def format_for_lametric(coalitions):
     
     return {"frames": frames}
 
-def save_to_json(data, filename="lametric.json"):
+def save_to_json(data):
     """
     Speichert das Ergebnis (Koalitionen) oder LaMetric-Daten in einer JSON-Datei.
     """
     try:
-        with open(filename, "w", encoding="utf-8") as f:
+        with open("data.json", "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
-        logging.info(f"Daten erfolgreich in {filename} geschrieben.")
+        logging.info("Daten erfolgreich in data.json geschrieben.")
         
         # Debugging-Ausgabe der geschriebenen Daten
-        logging.debug(json.dumps(data, indent=2))
+        logging.debug(json.dumps(data))
         
     except Exception as e:
-        logging.error(f"Fehler beim Schreiben von {filename}: {str(e)}")
+        logging.error(f"Fehler beim Schreiben der Datei data.json: {str(e)}")
 
 if __name__ == "__main__":
     try:
