@@ -143,7 +143,7 @@ def save_to_json(data):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     
     try:
         # Daten abrufen und filtern
