@@ -5,7 +5,7 @@
       "icon": "16880"
     },
     {
-      "text": " + AfD",
+      "text": " + SPD",
       "icon": "16880"
     },
     {
@@ -13,7 +13,7 @@
       "icon": "16880"
     },
     {
-      "text": "352 Sitze",
+      "text": "332 Sitze",
       "icon": "16880"
     },
     {
@@ -21,95 +21,83 @@
       "icon": "16881"
     },
     {
-      "text": " + SPD ",
+      "text": " + GRÜN",
       "icon": "16881"
+    },
+    {
+      "text": "Gesamt:",
+      "icon": "16881"
+    },
+    {
+      "text": "319 Sitze",
+      "icon": "16881"
+    },
+    {
+      "text": "CDU/CSU",
+      "icon": "16882"
+    },
+    {
+      "text": " + AfD",
+      "icon": "16882"
+    },
+    {
+      "text": "Gesamt:",
+      "icon": "16882"
+    },
+    {
+      "text": "374 Sitze",
+      "icon": "16882"
+    },
+    {
+      "text": "CDU/CSU",
+      "icon": "16883"
+    },
+    {
+      "text": " + SPD ",
+      "icon": "16883"
     },
     {
       "text": "+ GRÜN",
-      "icon": "16881"
+      "icon": "16883"
     },
     {
       "text": "Gesamt:",
-      "icon": "16881"
+      "icon": "16883"
     },
     {
-      "text": "403 Sitze",
-      "icon": "16881"
+      "text": "429 Sitze",
+      "icon": "16883"
     },
     {
       "text": "CDU/CSU",
-      "icon": "16882"
+      "icon": "16884"
     },
     {
       "text": " + SPD ",
-      "icon": "16882"
+      "icon": "16884"
     },
     {
       "text": "+ LINKE",
-      "icon": "16882"
+      "icon": "16884"
     },
     {
       "text": "Gesamt:",
-      "icon": "16882"
+      "icon": "16884"
     },
     {
-      "text": "358 Sitze",
-      "icon": "16882"
+      "text": "381 Sitze",
+      "icon": "16884"
     },
     {
       "text": "CDU/CSU",
-      "icon": "16883"
+      "icon": "16885"
     },
     {
       "text": " + SPD ",
-      "icon": "16883"
+      "icon": "16885"
     },
     {
       "text": "+ AfD",
-      "icon": "16883"
-    },
-    {
-      "text": "Gesamt:",
-      "icon": "16883"
-    },
-    {
-      "text": "455 Sitze",
-      "icon": "16883"
-    },
-    {
-      "text": "CDU/CSU",
-      "icon": "16884"
-    },
-    {
-      "text": " + SPD ",
-      "icon": "16884"
-    },
-    {
-      "text": "+ Sonst",
-      "icon": "16884"
-    },
-    {
-      "text": "Gesamt:",
-      "icon": "16884"
-    },
-    {
-      "text": "349 Sitze",
-      "icon": "16884"
-    },
-    {
-      "text": "CDU/CSU",
-      "icon": "16885"
-    },
-    {
-      "text": " + GRÜN",
-      "icon": "16885"
-    },
-    {
-      "text": " + LINK",
-      "icon": "16885"
-    },
-    {
-      "text": "E",
       "icon": "16885"
     },
     {
@@ -117,7 +105,7 @@
       "icon": "16885"
     },
     {
-      "text": "346 Sitze",
+      "text": "484 Sitze",
       "icon": "16885"
     },
     {
@@ -127,33 +115,29 @@
     {
       "text": " + GRÜN",
       "icon": "16886"
+    },
+    {
+      "text": " + LINKE",
+      "icon": "16886"
+    },
+    {
+      "text": "Gesamt:",
+      "icon": "16886"
+    },
+    {
+      "text": "368 Sitze",
+      "icon": "16886"
+    },
+    {
+      "text": "CDU/CSU",
+      "icon": "16887"
+    },
+    {
+      "text": " + GRÜN",
+      "icon": "16887"
     },
     {
       "text": " + AfD",
-      "icon": "16886"
-    },
-    {
-      "text": "Gesamt:",
-      "icon": "16886"
-    },
-    {
-      "text": "443 Sitze",
-      "icon": "16886"
-    },
-    {
-      "text": "CDU/CSU",
-      "icon": "16887"
-    },
-    {
-      "text": " + GRÜN",
-      "icon": "16887"
-    },
-    {
-      "text": " + Sons",
-      "icon": "16887"
-    },
-    {
-      "text": "t",
       "icon": "16887"
     },
     {
@@ -161,7 +145,7 @@
       "icon": "16887"
     },
     {
-      "text": "337 Sitze",
+      "text": "471 Sitze",
       "icon": "16887"
     },
     {
@@ -181,19 +165,19 @@
       "icon": "16888"
     },
     {
-      "text": "398 Sitze",
+      "text": "423 Sitze",
       "icon": "16888"
     },
     {
-      "text": "CDU/CSU",
+      "text": "SPD + G",
       "icon": "16889"
     },
     {
-      "text": " + AfD ",
+      "text": "RÜN + A",
       "icon": "16889"
     },
     {
-      "text": "+ Sonst",
+      "text": "fD",
       "icon": "16889"
     },
     {
@@ -201,7 +185,7 @@
       "icon": "16889"
     },
     {
-      "text": "389 Sitze",
+      "text": "359 Sitze",
       "icon": "16889"
     }
   ]
