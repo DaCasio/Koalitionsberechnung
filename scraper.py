@@ -81,7 +81,8 @@ def calculate_seat_distribution(zweitstimmen):
 
 def calculate_majority_coalitions(seat_distribution):
     """
-    Berechnet mögliche Koalitionen basierend auf der Sitzverteilung.
+    Berechnet alle möglichen Koalitionen basierend auf der Sitzverteilung.
+    Zeigt nur Koalitionen mit einer Mehrheit (≥316 Sitze).
     """
     majority = TOTAL_SEATS // 2 + 1
     coalitions = []
@@ -91,12 +92,6 @@ def calculate_majority_coalitions(seat_distribution):
             seats = sum(seat_distribution[party] for party in combo)
             if seats >= majority:
                 coalitions.append({"parties": list(combo), "seats": seats})
-
-                # Sobald eine Mehrheit erreicht wurde (erste relevante Konstellation), abbrechen
-                break
-
-        if coalitions:
-            break
 
     return coalitions
 
