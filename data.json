@@ -1,15 +1,7 @@
 {
   "frames": [
     {
-      "text": "Koalit.",
-      "icon": "16880"
-    },
-    {
       "text": "CDU/CSU",
-      "icon": "16880"
-    },
-    {
-      "text": "+ AfD",
       "icon": "16880"
     },
     {
@@ -17,32 +9,8 @@
       "icon": "16880"
     },
     {
-      "text": "50.8%",
+      "text": "352 Sitze",
       "icon": "16880"
-    },
-    {
-      "text": "Koalit.",
-      "icon": "16881"
-    },
-    {
-      "text": "CDU/CSU",
-      "icon": "16881"
-    },
-    {
-      "text": "+ SPD",
-      "icon": "16881"
-    },
-    {
-      "text": "+ GRÜN",
-      "icon": "16881"
-    },
-    {
-      "text": "Gesamt:",
-      "icon": "16881"
-    },
-    {
-      "text": "58.3%",
-      "icon": "16881"
     }
   ]
 }
