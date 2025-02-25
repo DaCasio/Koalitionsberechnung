@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # scraper.py
-# Dieses Skript ruft Umfragedaten von wahlrecht.de ab, berechnet Koalitionen und erstellt ein LaMetric-kompatibles JSON-Format.
+# Dieses Skript ruft Umfragedaten von wahlrecht.de ab, berechnet Koalitionen und Sitzverteilungen und erstellt ein LaMetric-kompatibles JSON-Format.
 
 import logging
 import requests
@@ -27,6 +27,8 @@ ICON_IDS = [
     16895, 16896, 16898, 16899, 16900, 16901, 16905, 16906,
     16907, 16908, 16909, 16910, 16911, 16912, 16913
 ]
+
+TOTAL_SEATS = 630
 
 def fetch_poll_data():
     """
@@ -63,49 +65,37 @@ def fetch_poll_data():
 
     return pd.DataFrame(poll_data).mean().round(1).to_dict()
 
-def calculate_coalitions(poll_data):
+def filter_parties_by_threshold(zweitstimmen, threshold=5):
     """
-    Berechnet mögliche Koalitionen basierend auf Parteien mit mindestens 5% Stimmenanteil.
-    Berücksichtigt nur die erste Konstellation mit einer Mehrheit.
+    Filtert Parteien basierend auf der Fünf-Prozent-Hürde.
     """
-    threshold = 5.0
-    majority = 50.0
+    total_votes = sum(zweitstimmen.values())
+    return {party: votes for party, votes in zweitstimmen.items() if (votes / total_votes) * 100 >= threshold}
 
-    eligible_parties = {k: v for k, v in poll_data.items() if v >= threshold}
-    
-    coalitions = {"with_afd": [], "without_afd": []}
-    
-    found_majority_with_afd = False
-    found_majority_without_afd = False
+def calculate_seat_distribution(zweitstimmen):
+    """
+    Berechnet die Sitzverteilung basierend auf dem Zweitstimmenergebnis.
+    """
+    total_votes = sum(zweitstimmen.values())
+    return {party: round((votes / total_votes) * TOTAL_SEATS) for party, votes in zweitstimmen.items()}
 
-    for r in range(2, len(eligible_parties) + 1): 
-        for combo in combinations(eligible_parties.keys(), r):
-            if "CDU/CSU" not in combo:
-                continue
-            
-            total = sum(eligible_parties[p] for p in combo)
-            afd_included = "AfD" in combo
-            
-            if afd_included and any(party in combo for party in ["SPD", "GRÜNE", "DIE LINKE"]):
-                continue
-            
-            coalition = {
-                "parties": list(combo),
-                "total": round(total, 1),
-                "possible": total >= majority,
-            }
-            
-            if afd_included and coalition["possible"] and not found_majority_with_afd:
-                coalitions["with_afd"].append(coalition)
-                found_majority_with_afd = True
-            elif not afd_included and coalition["possible"] and not found_majority_without_afd:
-                coalitions["without_afd"].append(coalition)
-                found_majority_without_afd = True
+def calculate_majority_coalitions(seat_distribution):
+    """
+    Berechnet mögliche Koalitionen basierend auf der Sitzverteilung.
+    """
+    majority = TOTAL_SEATS // 2 + 1
+    coalitions = []
 
-            if found_majority_with_afd and found_majority_without_afd:
+    for r in range(2, len(seat_distribution) + 1):
+        for combo in combinations(seat_distribution.keys(), r):
+            seats = sum(seat_distribution[party] for party in combo)
+            if seats >= majority:
+                coalitions.append({"parties": list(combo), "seats": seats})
+
+                # Sobald eine Mehrheit erreicht wurde (erste relevante Konstellation), abbrechen
                 break
 
-        if found_majority_with_afd and found_majority_without_afd:
+        if coalitions:
             break
 
     return coalitions
@@ -127,25 +117,11 @@ def format_for_lametric(coalitions):
     
     icon_index = -1
     
-    # Koalitionen mit AfD
-    frames.append({"text": split_text("Koalit.AfD")[0], "icon": str(ICON_IDS[0])})
-    
-    for coalition in coalitions["with_afd"]:
+    for coalition in coalitions:
         icon_index += 1
-        for part in split_text(f"{' + '.join(coalition['parties'])}"):
-            frames.append({"text": part.strip(), "icon": str(ICON_IDS[icon_index])})
+        frames.append({"text": split_text(f"{' + '.join(coalition['parties'])}")[0], "icon": str(ICON_IDS[icon_index])})
         frames.append({"text": f"Gesamt:", "icon": str(ICON_IDS[icon_index])})
-        frames.append({"text": f"{coalition['total']}%", "icon": str(ICON_IDS[icon_index])})
-    
-    # Koalitionen ohne AfD
-    frames.append({"text": split_text("Koalit.oAf")[0], "icon": str(ICON_IDS[icon_index + 1])})
-    
-    for coalition in coalitions["without_afd"]:
-        icon_index += 1
-        for part in split_text(f"{' + '.join(coalition['parties'])}"):
-            frames.append({"text": part.strip(), "icon": str(ICON_IDS[icon_index])})
-        frames.append({"text": f"Gesamt:", "icon": str(ICON_IDS[icon_index])})
-        frames.append({"text": f"{coalition['total']}%", "icon": str(ICON_IDS[icon_index])})
+        frames.append({"text": f"{coalition['seats']} Sitze", "icon": str(ICON_IDS[icon_index])})
     
     return {"frames": frames}
 
@@ -159,10 +135,18 @@ def save_to_json(data):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     
+    # Daten abrufen und filtern
     poll_data = fetch_poll_data()
     
-    coalitions = calculate_coalitions(poll_data)
+    filtered_data = filter_parties_by_threshold(poll_data)
     
-    lametric_data = format_for_lametric(coalitions)
+    # Sitzverteilung berechnen
+    seat_distribution = calculate_seat_distribution(filtered_data)
+    
+    # Koalitionen berechnen
+    coalitions_with_majority = calculate_majority_coalitions(seat_distribution)
+    
+    # Daten für LaMetric formatieren und speichern
+    lametric_data = format_for_lametric(coalitions_with_majority)
     
     save_to_json(lametric_data)
