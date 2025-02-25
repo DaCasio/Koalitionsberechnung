@@ -93,6 +93,12 @@ def calculate_majority_coalitions(seat_distribution):
             if seats >= majority:
                 coalitions.append({"parties": list(combo), "seats": seats})
 
+                # Debugging-Log für jede gefundene Koalition
+                logging.debug(f"Gefundene Koalition: {combo}, Sitze: {seats}")
+
+    if not coalitions:
+        logging.warning("Keine Koalitionen mit Mehrheit gefunden.")
+    
     return coalitions
 
 def split_text(text):
@@ -108,12 +114,20 @@ def format_for_lametric(coalitions):
     """
     Formatiert die Koalitionsdaten im LaMetric-kompatiblen JSON-Format.
     """
+    if not coalitions:  
+        # Rückgabe eines Standard-Frames bei fehlenden Koalitionen
+        return {"frames": [{"text": "Keine Mehrh.", "icon": str(ICON_IDS[0])}]}
+
     frames = []
     
     icon_index = -1
     
     for coalition in coalitions:
         icon_index += 1
+        if icon_index >= len(ICON_IDS):  
+            logging.warning("Nicht genügend Icon-IDs verfügbar.")
+            break
+
         frames.append({"text": split_text(f"{' + '.join(coalition['parties'])}")[0], "icon": str(ICON_IDS[icon_index])})
         frames.append({"text": f"Gesamt:", "icon": str(ICON_IDS[icon_index])})
         frames.append({"text": f"{coalition['seats']} Sitze", "icon": str(ICON_IDS[icon_index])})
@@ -130,18 +144,24 @@ def save_to_json(data):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     
-    # Daten abrufen und filtern
-    poll_data = fetch_poll_data()
+    try:
+        # Daten abrufen und filtern
+        poll_data = fetch_poll_data()
+        
+        filtered_data = filter_parties_by_threshold(poll_data)
+        
+        # Sitzverteilung berechnen
+        seat_distribution = calculate_seat_distribution(filtered_data)
+        
+        # Koalitionen berechnen
+        coalitions_with_majority = calculate_majority_coalitions(seat_distribution)
+        
+        # Daten für LaMetric formatieren und speichern
+        lametric_data = format_for_lametric(coalitions_with_majority)
+        
+        save_to_json(lametric_data)
+        
+        logging.info("Prozess erfolgreich abgeschlossen!")
     
-    filtered_data = filter_parties_by_threshold(poll_data)
-    
-    # Sitzverteilung berechnen
-    seat_distribution = calculate_seat_distribution(filtered_data)
-    
-    # Koalitionen berechnen
-    coalitions_with_majority = calculate_majority_coalitions(seat_distribution)
-    
-    # Daten für LaMetric formatieren und speichern
-    lametric_data = format_for_lametric(coalitions_with_majority)
-    
-    save_to_json(lametric_data)
+    except Exception as e:
+        logging.error(f"Ein Fehler ist aufgetreten: {e}", exc_info=True)
