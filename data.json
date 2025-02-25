@@ -5,52 +5,48 @@
       "icon": "16880"
     },
     {
-      "text": "SPD    ",
-      "icon": "16880"
-    },
-    {
-      "text": "Gesamt:",
-      "icon": "16880"
-    },
-    {
-      "text": "332 Sitze",
-      "icon": "16880"
-    },
-    {
-      "text": "CDU/CSU",
-      "icon": "16881"
-    },
-    {
-      "text": "GRÜN   ",
-      "icon": "16881"
-    },
-    {
-      "text": "Gesamt:",
-      "icon": "16881"
-    },
-    {
-      "text": "319 Sitze",
-      "icon": "16881"
-    },
-    {
-      "text": "CDU/CSU",
-      "icon": "16882"
-    },
-    {
       "text": "AfD    ",
-      "icon": "16882"
+      "icon": "16880"
     },
     {
       "text": "Gesamt:",
-      "icon": "16882"
+      "icon": "16880"
     },
     {
       "text": "374 Sitze",
+      "icon": "16880"
+    },
+    {
+      "text": "CDU/CSU",
+      "icon": "16881"
+    },
+    {
+      "text": "SPD    ",
+      "icon": "16881"
+    },
+    {
+      "text": "Gesamt:",
+      "icon": "16881"
+    },
+    {
+      "text": "332 Sitze",
+      "icon": "16881"
+    },
+    {
+      "text": "CDU/CSU",
       "icon": "16882"
     },
     {
-      "text": "CDU/CSU",
-      "icon": "16883"
+      "text": "GRÜN   ",
+      "icon": "16882"
+    },
+    {
+      "text": "Gesamt:",
+      "icon": "16882"
+    },
+    {
+      "text": "319 Sitze",
+      "icon": "16882"
     },
     {
       "text": "SPD    ",
@@ -61,132 +57,16 @@
       "icon": "16883"
     },
     {
-      "text": "Gesamt:",
+      "text": "AfD    ",
       "icon": "16883"
     },
     {
-      "text": "429 Sitze",
+      "text": "Gesamt:",
       "icon": "16883"
-    },
-    {
-      "text": "CDU/CSU",
-      "icon": "16884"
-    },
-    {
-      "text": "SPD    ",
-      "icon": "16884"
-    },
-    {
-      "text": "LINKE  ",
-      "icon": "16884"
-    },
-    {
-      "text": "Gesamt:",
-      "icon": "16884"
-    },
-    {
-      "text": "381 Sitze",
-      "icon": "16884"
-    },
-    {
-      "text": "CDU/CSU",
-      "icon": "16885"
-    },
-    {
-      "text": "SPD    ",
-      "icon": "16885"
-    },
-    {
-      "text": "AfD    ",
-      "icon": "16885"
-    },
-    {
-      "text": "Gesamt:",
-      "icon": "16885"
-    },
-    {
-      "text": "484 Sitze",
-      "icon": "16885"
-    },
-    {
-      "text": "CDU/CSU",
-      "icon": "16886"
-    },
-    {
-      "text": "GRÜN   ",
-      "icon": "16886"
-    },
-    {
-      "text": "LINKE  ",
-      "icon": "16886"
-    },
-    {
-      "text": "Gesamt:",
-      "icon": "16886"
-    },
-    {
-      "text": "368 Sitze",
-      "icon": "16886"
-    },
-    {
-      "text": "CDU/CSU",
-      "icon": "16887"
-    },
-    {
-      "text": "GRÜN   ",
-      "icon": "16887"
-    },
-    {
-      "text": "AfD    ",
-      "icon": "16887"
-    },
-    {
-      "text": "Gesamt:",
-      "icon": "16887"
-    },
-    {
-      "text": "471 Sitze",
-      "icon": "16887"
-    },
-    {
-      "text": "CDU/CSU",
-      "icon": "16888"
-    },
-    {
-      "text": "LINKE  ",
-      "icon": "16888"
-    },
-    {
-      "text": "AfD    ",
-      "icon": "16888"
-    },
-    {
-      "text": "Gesamt:",
-      "icon": "16888"
-    },
-    {
-      "text": "423 Sitze",
-      "icon": "16888"
-    },
-    {
-      "text": "SPD    ",
-      "icon": "16889"
-    },
-    {
-      "text": "GRÜN   ",
-      "icon": "16889"
-    },
-    {
-      "text": "AfD    ",
-      "icon": "16889"
-    },
-    {
-      "text": "Gesamt:",
-      "icon": "16889"
     },
     {
       "text": "359 Sitze",
-      "icon": "16889"
+      "icon": "16883"
     }
   ]
 }
