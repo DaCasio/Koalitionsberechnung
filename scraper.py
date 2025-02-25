@@ -123,7 +123,7 @@ def format_for_lametric(coalitions):
     
     icon_index = -1
     
-    for coalition in coalitions:
+    for coalition in coalitions[:10]: # Begrenzung auf maximal 10 Koalitionen für Übersichtlichkeit
         icon_index += 1
         if icon_index >= len(ICON_IDS):  
             logging.warning("Nicht genügend Icon-IDs verfügbar.")
