@@ -1,7 +1,9 @@
-numpy>=1.26.0
 pandas>=2.1.1
-beautifulsoup4==4.12.2
-requests==2.31.0
-lxml==4.9.3
-setuptools>=68.0.0
-wheel>=0.40.0
+beautifulsoup4>=4.12.2
+requests>=2.31.0
+lxml>=4.9.3
+
+
+# numpy>=1.26.0
+# setuptools>=68.0.0
+# wheel>=0.40.0
