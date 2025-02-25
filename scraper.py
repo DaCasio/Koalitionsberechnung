@@ -65,12 +65,12 @@ def fetch_poll_data():
 
     return pd.DataFrame(poll_data).mean().round(1).to_dict()
 
-def filter_parties_by_threshold(zweitstimmen, threshold=5):
+def filter_parties_by_threshold(zweitstimmen):
     """
     Filtert Parteien basierend auf der Fünf-Prozent-Hürde.
     """
     total_votes = sum(zweitstimmen.values())
-    return {party: votes for party, votes in zweitstimmen.items() if (votes / total_votes) * 100 >= threshold}
+    return {party: votes for party, votes in zweitstimmen.items() if (votes / total_votes) * 100 >= 5}
 
 def calculate_seat_distribution(zweitstimmen):
     """
