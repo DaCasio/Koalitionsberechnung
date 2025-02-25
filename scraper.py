@@ -87,6 +87,7 @@ def calculate_majority_coalitions(seat_distribution):
     majority = TOTAL_SEATS // 2 + 1
     coalitions = []
 
+    # Prüfe Kombinationen von mindestens zwei Parteien
     for r in range(2, len(seat_distribution) + 1):
         for combo in combinations(seat_distribution.keys(), r):
             seats = sum(seat_distribution[party] for party in combo)
