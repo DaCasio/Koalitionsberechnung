@@ -161,7 +161,7 @@ def format_for_lametric(coalitions):
         for party in coalition["parties"]:
             frames.append({"text": format_name(party), "icon": str(ICON_IDS[idx])})
         frames.append({"text": "Gesamt:", "icon": str(ICON_IDS[idx])})
-        frames.append({"text": f"{coalition['seats']} Sitze", "icon": str(ICON_IDS[idx])})
+        frames.append({"text": f"{coalition['seats']} Sitz", "icon": str(ICON_IDS[idx])})
     logging.debug("Formatiertes LaMetric JSON: %s", frames)
     return {"frames": frames}
 
