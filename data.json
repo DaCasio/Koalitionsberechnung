@@ -13,7 +13,7 @@
       "icon": "16880"
     },
     {
-      "text": "374 Sitz",
+      "text": "367 Sitz",
       "icon": "16880"
     },
     {
@@ -29,7 +29,7 @@
       "icon": "16881"
     },
     {
-      "text": "331 Sitz",
+      "text": "326 Sitz",
       "icon": "16881"
     },
     {
@@ -41,11 +41,15 @@
       "icon": "16882"
     },
     {
+      "text": "LINKE  ",
+      "icon": "16882"
+    },
+    {
       "text": "Gesamt:",
       "icon": "16882"
     },
     {
-      "text": "317 Sitz",
+      "text": "367 Sitz",
       "icon": "16882"
     },
     {
@@ -65,8 +69,28 @@
       "icon": "16883"
     },
     {
-      "text": "356 Sitz",
+      "text": "353 Sitz",
       "icon": "16883"
+    },
+    {
+      "text": "SPD    ",
+      "icon": "16884"
+    },
+    {
+      "text": "LINKE  ",
+      "icon": "16884"
+    },
+    {
+      "text": "AfD    ",
+      "icon": "16884"
+    },
+    {
+      "text": "Gesamt:",
+      "icon": "16884"
+    },
+    {
+      "text": "325 Sitz",
+      "icon": "16884"
     }
   ]
 }
